@@ -45,8 +45,15 @@ struct ModelInfo
     std::string model_decs;
 };
 
+enum class ModelType{
+    DEEPSEEK , 
+    GEMINI , 
+    CHATGPT
+};
+
 struct Config
 {
+    ModelType type;
     ModelInfo model_info;       // 展示给用户的
 
     std::string end_point;
