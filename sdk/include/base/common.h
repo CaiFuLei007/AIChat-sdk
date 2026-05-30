@@ -53,6 +53,7 @@ struct Config
     std::string apikey;         // API 
     
     std::string path;           // 模型的path
+    std::string streampath;     // stream path
     std::string model;          
 
     double temperature = 1;            // 范围 : 0~2 

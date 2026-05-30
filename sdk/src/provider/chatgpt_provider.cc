@@ -170,7 +170,13 @@ std::string ChatGPTProvider::SendMessageStream(const std::vector<Message> &messa
 
     request.content_receiver = [&](const char *data, size_t data_length, size_t offset, size_t total_length)->bool
     {
-        buffer.append(data , data_length);
+        //  \r\n\r\n , \n\n
+        for(size_t i = 0; i < data_length; i++)
+        {
+            if(data[i] != '\r') 
+                buffer += data[i];
+        }
+
         size_t pos;
         // 开始进行解析
         while((pos = buffer.find("\n\n")) != std::string::npos)
