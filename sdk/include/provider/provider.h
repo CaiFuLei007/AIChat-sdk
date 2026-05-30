@@ -22,12 +22,13 @@ namespace ai_sdk
 
 class Provider
 {
+protected:
     using MessageCallback = std::function<void(const std::string& mes , bool finish)>;
-private:
+protected:
     Config config_;
-    bool is_avaiable_;
+    bool is_avaiable_ = false;
 public:
-    virtual bool Init() = 0;
+    virtual bool Init(Config config) = 0;
     bool IsAvaiable()
     {
         return is_avaiable_;
@@ -43,8 +44,8 @@ public:
         return config_.model_info.model_decs;
     }
 
-    std::string SendMessage(const std::vector<std::string> messages);
-    std::string SendMessageStream(const std::vector<std::string> messages , MessageCallback message_cb);
+    virtual std::string SendMessage(const std::vector<Message> &messages) = 0;
+    virtual std::string SendMessageStream(const std::vector<Message> &messages , MessageCallback message_cb) = 0;
 };
 
 
