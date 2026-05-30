@@ -58,7 +58,7 @@ struct Config
     double temperature = 1;            // 范围 : 0~2 
     int max_token = 4096;
     double top_p = 1;
-    std::string reasoning_effort = "high";
+    std::string reasoning_effort = "high";  // deepseek
 };
 
 } // namespace ai_sdk

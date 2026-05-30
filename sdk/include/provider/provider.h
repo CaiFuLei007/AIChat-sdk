@@ -28,6 +28,8 @@ protected:
     Config config_;
     bool is_avaiable_ = false;
 public:
+    Provider() = default;
+    virtual ~Provider() = default;
     virtual bool Init(Config config) = 0;
     bool IsAvaiable()
     {
