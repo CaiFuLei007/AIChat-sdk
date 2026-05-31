@@ -48,7 +48,7 @@ public:
 
     bool InsertUser(const UserInfo &user_info);
     bool RemoveUser(const std::string &uid);
-    UserInfo GetUser(const std::string& uid);
+    UserInfo GetUser(const std::string& name);
 
     bool InsertSession(const Session& session);
     bool RemoveSession(const std::string &ssid);

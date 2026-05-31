@@ -172,11 +172,11 @@ bool DataManager::RemoveUser(const std::string &uid)
     return true;
 }
 
-UserInfo DataManager::GetUser(const std::string& uid)
+UserInfo DataManager::GetUser(const std::string& name)
 {
     std::unique_lock<std::mutex> lock(mutex_);
 
-    static std::string get_user = "SELECT UID , USER_NAME , PASSWORD , CREATE_TIME FROM USER WHERE UID=?";
+    static std::string get_user = "SELECT UID , USER_NAME , PASSWORD , CREATE_TIME FROM USER WHERE USER_NAME=?";
     
     UserInfo user;
     sqlite3_stmt *stmt;
@@ -186,7 +186,7 @@ UserInfo DataManager::GetUser(const std::string& uid)
         return user;
     }
 
-    sqlite3_bind_text(stmt, 1, uid.c_str(), -1, NULL);
+    sqlite3_bind_text(stmt, 1, name.c_str(), -1, NULL);
     int rc = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         user.uid = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
