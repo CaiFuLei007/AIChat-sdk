@@ -14,14 +14,17 @@ namespace ai_sdk
 
 struct UserInfo
 {
-    int id;
-    std::string uuid;
+    std::string uid;
     std::string name;
     std::string password;
+
+    time_t create_time;
 };
 
 struct  Message
 {
+    std::string ssid;
+    std::string mid;
     std::string role;
     std::string content;
     
@@ -30,7 +33,7 @@ struct  Message
 
 struct Session
 {
-    std::string uuid;
+    std::string uid;
     std::string session_id;
     std::string model_name;
     std::vector<Message> messages;
