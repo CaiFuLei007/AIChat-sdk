@@ -51,5 +51,5 @@ public:
     int UpdateEvent(int fd , int events);
     int RemoveEvent(int fd);
 
-    std::vector<std::pair<int , int> > EpollWait();  // 返回所有就绪事件
+    std::vector<std::pair<int , int> > EpollWait(int wait_time);  // 返回所有就绪事件
 };

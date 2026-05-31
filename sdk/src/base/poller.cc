@@ -54,11 +54,11 @@ int Poller::RemoveEvent(int fd )
 }
 
 
-std::vector<std::pair<int , int> > Poller::EpollWait()
+std::vector<std::pair<int , int> > Poller::EpollWait(int wait_time)
 {
     struct epoll_event events[1024];
     int nfds = 0 ;
-    while((nfds = epoll_wait(epollfd_, events, 1024, -1)) < 0)
+    while((nfds = epoll_wait(epollfd_, events, 1024, wait_time)) < 0)
     {
         if(errno == EINTR)
         {
