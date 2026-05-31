@@ -301,6 +301,35 @@ bool DataManager::RemoveSession(const std::string &ssid)
     return true;
 }
 
+Session DataManager::GetSession(const std::string &ssid)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    static std::string get_session = "SELECT UID , SSID , MODEL_NAME , CREATE_TIME , UPDATE_TIME FROM SESSION WHERE SSID=?";
+
+    sqlite3_stmt *stmt;
+    int ret = sqlite3_prepare_v2(sqlite_, get_session.c_str(), -1, &stmt, NULL);
+    if (ret != SQLITE_OK) {
+        WARN("SQLITE3 PREPARE FAIL");
+        return {};
+    }
+
+    sqlite3_bind_text(stmt, 1, ssid.c_str(), -1, NULL);
+    Session session;
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        session.uid= reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        session.session_id = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        session.model_name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        session.create_time = sqlite3_column_int64(stmt, 3);
+        session.update_time = sqlite3_column_int64(stmt, 3);
+    }
+    sqlite3_finalize(stmt);
+    if (rc != SQLITE_DONE) {
+         WARN("SQLITE3 STEP FAIL");
+        return {};
+    }
+    return session;
+}
 
 bool DataManager::UpdateSession(const std::string &ssid)
 {
@@ -327,7 +356,7 @@ bool DataManager::UpdateSession(const std::string &ssid)
     return true;
 }
 
-std::vector<std::string> DataManager::GetAllSessions(const std::string &uid)
+std::vector<std::string> DataManager::GetUserAllSessions(const std::string &uid)
 {
     std::unique_lock<std::mutex> lock(mutex_);
 

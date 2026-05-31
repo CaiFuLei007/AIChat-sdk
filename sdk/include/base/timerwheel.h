@@ -39,19 +39,20 @@
 #include <unordered_map>
 #include <thread>
 #include <cstring>
-
+#include <mutex>
+#include <atomic>
 
 class TimeTask
 {
     using Task = std::function<void()>;
 private:
-    size_t id_;
+    std::string id_;
     size_t timeout_;
     Task task_;
     bool is_cancel_;
     
 public:
-    TimeTask(size_t id  ,size_t timeout , Task task)
+    TimeTask(const std::string& id  ,size_t timeout , Task task)
     :id_(id) , 
     timeout_(timeout) , 
     task_(task) , 
@@ -85,7 +86,7 @@ class TimerWheel
 {
     using Task = std::function<void()>;
 private:
-    std::unordered_map<size_t , std::weak_ptr<TimeTask> > tasks_;
+    std::unordered_map<std::string , std::weak_ptr<TimeTask> > tasks_;
     std::vector<std::vector<std::shared_ptr<TimeTask> > > wheel_;
     size_t tick_;
     int timerfd_;
@@ -113,10 +114,11 @@ public:
         }  
     }
 
-    void SetTask(size_t id ,size_t timeout , Task task);
-    void UpdateTask(size_t id);
-    void CancelTask(size_t id);
+    void SetTask(const std::string& id ,size_t timeout , Task task);
+    void UpdateTask(const std::string& id);
+    void CancelTask(const std::string& id);
 
+    bool HasTask(const std::string &id);
     void Ready();
     
 };

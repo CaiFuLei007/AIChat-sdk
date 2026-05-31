@@ -62,7 +62,7 @@ running_(false)
 {
 }
 
-void TimerWheel::SetTask(size_t id ,size_t timeout , Task task)
+void TimerWheel::SetTask(const std::string& id ,size_t timeout , Task task)
 {
     std::unique_lock<std::mutex> lock(mutex_);
 
@@ -91,7 +91,7 @@ void TimerWheel::SetTask(size_t id ,size_t timeout , Task task)
     tasks_.emplace(id , task_ptr);
 }
 
-void TimerWheel::UpdateTask(size_t id)
+void TimerWheel::UpdateTask(const std::string& id)
 {
     std::unique_lock<std::mutex> lock(mutex_);
 
@@ -111,7 +111,7 @@ void TimerWheel::UpdateTask(size_t id)
     wheel_[index].push_back(task);
 }
 
-void TimerWheel::CancelTask(size_t id)
+void TimerWheel::CancelTask(const std::string& id)
 {
     std::unique_lock<std::mutex> lock(mutex_);
 
@@ -129,13 +129,16 @@ void TimerWheel::CancelTask(size_t id)
     task->Cancel();
     tasks_.erase(it);
 }
-
+bool TimerWheel::HasTask(const std::string &id)
+{
+    return tasks_.count(id);
+}
 void TimerWheel::Ready()
 {
     struct itimerspec ts;
-    ts.it_interval.tv_sec = 60;  // 超时时间
+    ts.it_interval.tv_sec = 1;  // 超时时间
     ts.it_interval.tv_nsec = 0;
-    ts.it_value.tv_sec = 60;
+    ts.it_value.tv_sec = 1;
     ts.it_value.tv_nsec = 0;
     int ret = timerfd_settime(timerfd_, 0, &ts, NULL);
     if (ret) {

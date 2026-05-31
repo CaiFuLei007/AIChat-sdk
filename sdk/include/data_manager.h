@@ -54,13 +54,16 @@ public:
     bool RemoveSession(const std::string &ssid);
     bool RemoveUserAllSession(const std::string &uid);
     bool UpdateSession(const std::string &ssid);
-    std::vector<std::string> GetAllSessions(const std::string &uid);
+    Session GetSession(const std::string &ssid);
+    std::vector<std::string> GetUserAllSessions(const std::string &uid);
 
     bool InsertMessage(const Message& message);
     bool RemoveMessage(const std::string& mid);
     std::vector<Message> GetMessages(const std::string& ssid);
     bool RemoveSessionAllMessage(const std::string &ssid);
 
+    std::vector<std::string> GetAllSessions();
+    std::vector<std::string> GetAllUserName();
 };
 
 } // namespace ai_sdk
