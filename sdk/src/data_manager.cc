@@ -121,7 +121,7 @@ bool DataManager::InsertUser(const UserInfo &user_info)
     }
 
     sqlite3_bind_text(stmt, 1, user_info.uid.c_str(), -1, NULL);
-    sqlite3_bind_text(stmt, 2, user_info.name.c_str(), -1, NULL);
+    sqlite3_bind_text(stmt, 2, user_info.email.c_str(), -1, NULL);
     sqlite3_bind_text(stmt, 3, user_info.password.c_str(), -1, NULL);
     sqlite3_bind_int64(stmt, 4, user_info.create_time);
 
@@ -172,7 +172,7 @@ bool DataManager::RemoveUser(const std::string &uid)
     return true;
 }
 
-UserInfo DataManager::GetUser(const std::string& name)
+UserInfo DataManager::GetUser(const std::string& email)
 {
     std::unique_lock<std::mutex> lock(mutex_);
 
@@ -186,11 +186,11 @@ UserInfo DataManager::GetUser(const std::string& name)
         return user;
     }
 
-    sqlite3_bind_text(stmt, 1, name.c_str(), -1, NULL);
+    sqlite3_bind_text(stmt, 1, email.c_str(), -1, NULL);
     int rc = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         user.uid = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
-        user.name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        user.email = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
         user.password = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
         user.create_time = sqlite3_column_int64(stmt, 3);
     }

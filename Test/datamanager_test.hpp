@@ -45,11 +45,11 @@ protected:
     }
 
     // 辅助函数：创建测试用户
-    ai_sdk::UserInfo CreateTestUser(const std::string& uid, const std::string& name)
+    ai_sdk::UserInfo CreateTestUser(const std::string& uid, const std::string& email)
     {
         ai_sdk::UserInfo user;
         user.uid = uid;
-        user.name = name;
+        user.email = email;
         user.password = "test_password_" + uid;
         user.create_time = time(nullptr);
         return user;
@@ -119,9 +119,9 @@ TEST_F(DataManagerTest, GetUserSuccess)
     auto user = CreateTestUser("user-001", "Alice");
     ASSERT_TRUE(manager_->InsertUser(user));
 
-    auto retrieved = manager_->GetUser("user-001");
+    auto retrieved = manager_->GetUser("Alice");
     EXPECT_EQ(retrieved.uid, "user-001");
-    EXPECT_EQ(retrieved.name, "Alice");
+    EXPECT_EQ(retrieved.email, "Alice");
     EXPECT_EQ(retrieved.password, "test_password_user-001");
     EXPECT_GT(retrieved.create_time, 0);
 }
@@ -130,7 +130,7 @@ TEST_F(DataManagerTest, GetNonExistentUserReturnsEmpty)
 {
     auto user = manager_->GetUser("non-existent-uid");
     EXPECT_TRUE(user.uid.empty());
-    EXPECT_TRUE(user.name.empty());
+    EXPECT_TRUE(user.email.empty());
 }
 
 TEST_F(DataManagerTest, RemoveUserSuccess)
@@ -157,7 +157,7 @@ TEST_F(DataManagerTest, RemoveUserAlsoRemovesSessions)
     EXPECT_TRUE(manager_->RemoveUser("user-001"));
 
     // 验证会话也被删除
-    auto sessions = manager_->GetAllSessions("user-001");
+    auto sessions = manager_->GetUserAllSessions("user-001");
     EXPECT_TRUE(sessions.empty()) << "删除用户后，其会话也应该被删除";
 }
 
@@ -211,7 +211,7 @@ TEST_F(DataManagerTest, GetAllSessionsSuccess)
     ASSERT_TRUE(manager_->InsertSession(session2));
     ASSERT_TRUE(manager_->InsertSession(session3));
 
-    auto sessions = manager_->GetAllSessions("user-001");
+    auto sessions = manager_->GetUserAllSessions("user-001");
     EXPECT_EQ(sessions.size(), 3);
 
     // 验证返回的session id
@@ -222,7 +222,7 @@ TEST_F(DataManagerTest, GetAllSessionsSuccess)
 
 TEST_F(DataManagerTest, GetAllSessionsForNonExistentUserReturnsEmpty)
 {
-    auto sessions = manager_->GetAllSessions("non-existent-uid");
+    auto sessions = manager_->GetUserAllSessions("non-existent-uid");
     EXPECT_TRUE(sessions.empty());
 }
 
@@ -250,7 +250,7 @@ TEST_F(DataManagerTest, RemoveSessionSuccess)
 
     EXPECT_TRUE(manager_->RemoveSession("session-001"));
 
-    auto sessions = manager_->GetAllSessions("user-001");
+    auto sessions = manager_->GetUserAllSessions("user-001");
     EXPECT_TRUE(sessions.empty()) << "删除后应该查询不到会话";
 }
 
@@ -283,7 +283,7 @@ TEST_F(DataManagerTest, RemoveUserAllSessionSuccess)
 
     EXPECT_TRUE(manager_->RemoveUserAllSession("user-001"));
 
-    auto sessions = manager_->GetAllSessions("user-001");
+    auto sessions = manager_->GetUserAllSessions("user-001");
     EXPECT_TRUE(sessions.empty()) << "删除用户所有会话后应该为空";
 }
 
@@ -441,7 +441,7 @@ TEST_F(DataManagerTest, CompleteWorkflowTest)
     ASSERT_TRUE(manager_->InsertMessage(msg3));
 
     // 5. 验证数据
-    auto sessions = manager_->GetAllSessions("user-001");
+    auto sessions = manager_->GetUserAllSessions("user-001");
     EXPECT_EQ(sessions.size(), 2);
 
     auto messages1 = manager_->GetMessages("session-001");
@@ -453,7 +453,7 @@ TEST_F(DataManagerTest, CompleteWorkflowTest)
     // 6. 删除一个会话
     EXPECT_TRUE(manager_->RemoveSession("session-001"));
 
-    sessions = manager_->GetAllSessions("user-001");
+    sessions = manager_->GetUserAllSessions("user-001");
     EXPECT_EQ(sessions.size(), 1);
 
     messages1 = manager_->GetMessages("session-001");
@@ -462,7 +462,7 @@ TEST_F(DataManagerTest, CompleteWorkflowTest)
     // 7. 删除用户（级联删除所有会话）
     EXPECT_TRUE(manager_->RemoveUser("user-001"));
 
-    sessions = manager_->GetAllSessions("user-001");
+    sessions = manager_->GetUserAllSessions("user-001");
     EXPECT_TRUE(sessions.empty());
 }
 
@@ -481,11 +481,11 @@ TEST_F(DataManagerTest, MultipleUsersAndSessions)
     ASSERT_TRUE(manager_->InsertSession(session2));
 
     // 验证每个用户只能看到自己的会话
-    auto sessions1 = manager_->GetAllSessions("user-001");
+    auto sessions1 = manager_->GetUserAllSessions("user-001");
     EXPECT_EQ(sessions1.size(), 1);
     EXPECT_EQ(sessions1[0], "session-001");
 
-    auto sessions2 = manager_->GetAllSessions("user-002");
+    auto sessions2 = manager_->GetUserAllSessions("user-002");
     EXPECT_EQ(sessions2.size(), 1);
     EXPECT_EQ(sessions2[0], "session-002");
 }
@@ -534,7 +534,7 @@ TEST_F(DataManagerTest, ConcurrentReadWrite)
             // 读取线程
             threads.emplace_back([this]() {
                 for (int j = 0; j < 10; ++j) {
-                    auto sessions = manager_->GetAllSessions("user-001");
+                    auto sessions = manager_->GetUserAllSessions("user-001");
                     EXPECT_GE(sessions.size(), 1);
                 }
             });

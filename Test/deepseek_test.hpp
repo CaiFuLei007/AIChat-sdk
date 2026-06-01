@@ -56,7 +56,7 @@ TEST_F(DeepSeekProviderTest, SendMessageReturnsResponse)
     ASSERT_TRUE(provider_.Init(config_));
 
     std::vector<ai_sdk::Message> messages = {
-        {"user", "回复一个字:好", 0}
+        {"", "", "user", "回复一个字:好", 0}
     };
 
     std::string response = provider_.SendMessage(messages);
@@ -69,7 +69,7 @@ TEST_F(DeepSeekProviderTest, SendMessageStreamReturnsResponse)
     ASSERT_TRUE(provider_.Init(config_));
 
     std::vector<ai_sdk::Message> messages = {
-        {"user", "回复一个字:好", 0}
+        {"", "", "user", "回复一个字:好", 0}
     };
 
     std::string streamed_content;

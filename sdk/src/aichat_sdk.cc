@@ -47,23 +47,23 @@ std::vector<ModelInfo> AIChatSdk::GetAllModels()
     return llmanager_->GetAllModel();
 }
 
-bool AIChatSdk::HasUser(const std::string& name)
+bool AIChatSdk::HasUser(const std::string& email)
 {
-    return session_manager_->HasUserName(name);
+    return session_manager_->HasUserName(email);
 }
 
-std::shared_ptr<UserInfo> AIChatSdk::GetUser(const std::string& name , const std::string& password)
+std::shared_ptr<UserInfo> AIChatSdk::GetUser(const std::string& email , const std::string& password)
 {   
-    std::shared_ptr<UserInfo> user_info = session_manager_->GetUserInfo(name);
+    std::shared_ptr<UserInfo> user_info = session_manager_->GetUserInfo(email);
     if(!user_info || user_info->password != password)
     {
         return nullptr;
     }
     return user_info;
 }
-std::string AIChatSdk::CreateUser(const std::string& name , const std::string& password)
+std::string AIChatSdk::CreateUser(const std::string& email , const std::string& password)
 {
-    return session_manager_->InsertNewUser(name , password);
+    return session_manager_->InsertNewUser(email , password);
 }
 std::string AIChatSdk::SendMessage(const std::string& ssid , const std::string& message)
 {

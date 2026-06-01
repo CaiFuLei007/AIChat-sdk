@@ -53,7 +53,7 @@ TEST_F(TimerWheelTest, TaskExecutesAfterTimeout)
     auto start_time = std::chrono::steady_clock::now();
     std::chrono::steady_clock::time_point execution_time;
 
-    timer_wheel_->SetTask(1, 2, [&executed, &execution_time]() {
+    timer_wheel_->SetTask("task1", 2, [&executed, &execution_time]() {
         execution_time = std::chrono::steady_clock::now();
         executed = true;
     });
@@ -78,7 +78,7 @@ TEST_F(TimerWheelTest, TaskExecutesAfter1Second)
 {
     std::atomic<bool> executed{false};
 
-    timer_wheel_->SetTask(1, 1, [&executed]() {
+    timer_wheel_->SetTask("task1", 1, [&executed]() {
         executed = true;
     });
 
@@ -98,17 +98,17 @@ TEST_F(TimerWheelTest, MultipleTasksExecuteInOrder)
     std::mutex mutex;
 
     // 设置3个不同超时的任务
-    timer_wheel_->SetTask(1, 1, [&execution_order, &mutex]() {
+    timer_wheel_->SetTask("task1", 1, [&execution_order, &mutex]() {
         std::lock_guard<std::mutex> lock(mutex);
         execution_order.push_back(1);
     });
 
-    timer_wheel_->SetTask(2, 2, [&execution_order, &mutex]() {
+    timer_wheel_->SetTask("task2", 2, [&execution_order, &mutex]() {
         std::lock_guard<std::mutex> lock(mutex);
         execution_order.push_back(2);
     });
 
-    timer_wheel_->SetTask(3, 3, [&execution_order, &mutex]() {
+    timer_wheel_->SetTask("task3", 3, [&execution_order, &mutex]() {
         std::lock_guard<std::mutex> lock(mutex);
         execution_order.push_back(3);
     });
@@ -130,7 +130,7 @@ TEST_F(TimerWheelTest, MultipleTasksWithSameTimeout)
 
     // 设置多个相同超时的任务
     for (int i = 0; i < num_tasks; ++i) {
-        timer_wheel_->SetTask(i, 2, [&execution_count]() {
+        timer_wheel_->SetTask(std::to_string(i), 2, [&execution_count]() {
             execution_count++;
         });
     }
@@ -150,13 +150,13 @@ TEST_F(TimerWheelTest, CancelTaskBeforeExecution)
 {
     std::atomic<bool> executed{false};
 
-    timer_wheel_->SetTask(1, 3, [&executed]() {
+    timer_wheel_->SetTask("task1", 3, [&executed]() {
         executed = true;
     });
 
     // 在任务执行前取消
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    timer_wheel_->CancelTask(1);
+    timer_wheel_->CancelTask("task1");
 
     // 等待原本的超时时间
     std::this_thread::sleep_for(std::chrono::seconds(4));
@@ -167,7 +167,7 @@ TEST_F(TimerWheelTest, CancelTaskBeforeExecution)
 // 测试取消不存在的任务不会崩溃
 TEST_F(TimerWheelTest, CancelNonExistentTask)
 {
-    EXPECT_NO_THROW(timer_wheel_->CancelTask(999));
+    EXPECT_NO_THROW(timer_wheel_->CancelTask("999"));
 }
 
 // 测试取消已执行的任务不会崩溃
@@ -175,7 +175,7 @@ TEST_F(TimerWheelTest, CancelAlreadyExecutedTask)
 {
     std::atomic<bool> executed{false};
 
-    timer_wheel_->SetTask(1, 1, [&executed]() {
+    timer_wheel_->SetTask("task1", 1, [&executed]() {
         executed = true;
     });
 
@@ -184,7 +184,7 @@ TEST_F(TimerWheelTest, CancelAlreadyExecutedTask)
     ASSERT_TRUE(executed);
 
     // 取消已执行的任务不应该崩溃
-    EXPECT_NO_THROW(timer_wheel_->CancelTask(1));
+    EXPECT_NO_THROW(timer_wheel_->CancelTask("task1"));
 }
 
 // =================================================================
@@ -198,13 +198,13 @@ TEST_F(TimerWheelTest, UpdateTaskExtendsLifetime)
     std::atomic<bool> executed{false};
 
     // 设置一个2秒超时的任务
-    timer_wheel_->SetTask(1, 2, [&executed]() {
+    timer_wheel_->SetTask("task1", 2, [&executed]() {
         executed = true;
     });
 
     // 等待1秒后更新任务（添加新的 shared_ptr 引用）
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    timer_wheel_->UpdateTask(1);
+    timer_wheel_->UpdateTask("task1");
 
     // 原本2秒后应该执行，但由于 UpdateTask 添加了新引用
     // 任务会在所有 shared_ptr 都释放后才执行
@@ -226,14 +226,14 @@ TEST_F(TimerWheelTest, MultipleUpdatesExtendLifetime)
     std::atomic<bool> executed{false};
 
     // 设置一个1秒超时的任务
-    timer_wheel_->SetTask(1, 1, [&executed]() {
+    timer_wheel_->SetTask("task1", 1, [&executed]() {
         executed = true;
     });
 
     // 连续更新3次，每次间隔500ms
     for (int i = 0; i < 3; ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        timer_wheel_->UpdateTask(1);
+        timer_wheel_->UpdateTask("task1");
     }
 
     // 等待足够长时间让所有 shared_ptr 释放
@@ -245,7 +245,7 @@ TEST_F(TimerWheelTest, MultipleUpdatesExtendLifetime)
 // 测试更新不存在的任务不会崩溃
 TEST_F(TimerWheelTest, UpdateNonExistentTask)
 {
-    EXPECT_NO_THROW(timer_wheel_->UpdateTask(999));
+    EXPECT_NO_THROW(timer_wheel_->UpdateTask("999"));
 }
 
 // =================================================================
@@ -259,13 +259,13 @@ TEST_F(TimerWheelTest, SetTaskWithSameIdReplacesOldTask)
     std::atomic<int> second_task_executed{0};
 
     // 设置第一个任务
-    timer_wheel_->SetTask(1, 3, [&first_task_executed]() {
+    timer_wheel_->SetTask("task1", 3, [&first_task_executed]() {
         first_task_executed++;
     });
 
     // 用相同ID设置第二个任务（应该取消第一个）
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    timer_wheel_->SetTask(1, 2, [&second_task_executed]() {
+    timer_wheel_->SetTask("task1", 2, [&second_task_executed]() {
         second_task_executed++;
     });
 
@@ -290,7 +290,7 @@ TEST_F(TimerWheelTest, ConcurrentSetTasks)
     std::vector<std::thread> threads;
     for (int i = 0; i < num_tasks; ++i) {
         threads.emplace_back([this, i, &execution_count]() {
-            timer_wheel_->SetTask(i, 2, [&execution_count]() {
+            timer_wheel_->SetTask(std::to_string(i), 2, [&execution_count]() {
                 execution_count++;
             });
         });
@@ -313,14 +313,14 @@ TEST_F(TimerWheelTest, ConcurrentCancelTasks)
 
     // 先设置任务
     for (int i = 0; i < num_tasks; ++i) {
-        timer_wheel_->SetTask(i, 5, []() {});
+        timer_wheel_->SetTask(std::to_string(i), 5, []() {});
     }
 
     // 并发取消任务
     std::vector<std::thread> threads;
     for (int i = 0; i < num_tasks; ++i) {
         threads.emplace_back([this, i]() {
-            timer_wheel_->CancelTask(i);
+            timer_wheel_->CancelTask(std::to_string(i));
         });
     }
 
@@ -339,14 +339,14 @@ TEST_F(TimerWheelTest, ConcurrentUpdateTasks)
 
     // 先设置任务
     for (int i = 0; i < num_tasks; ++i) {
-        timer_wheel_->SetTask(i, 5, []() {});
+        timer_wheel_->SetTask(std::to_string(i), 5, []() {});
     }
 
     // 并发更新任务
     std::vector<std::thread> threads;
     for (int i = 0; i < num_tasks; ++i) {
         threads.emplace_back([this, i]() {
-            timer_wheel_->UpdateTask(i);
+            timer_wheel_->UpdateTask(std::to_string(i));
         });
     }
 
@@ -369,7 +369,7 @@ TEST_F(TimerWheelTest, ConcurrentMixedOperations)
     // 一些线程设置任务
     for (int i = 0; i < num_tasks; ++i) {
         threads.emplace_back([this, i, &execution_count]() {
-            timer_wheel_->SetTask(i, 3, [&execution_count]() {
+            timer_wheel_->SetTask(std::to_string(i), 3, [&execution_count]() {
                 execution_count++;
             });
         });
@@ -379,7 +379,7 @@ TEST_F(TimerWheelTest, ConcurrentMixedOperations)
     for (int i = 0; i < num_tasks / 3; ++i) {
         threads.emplace_back([this, i]() {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            timer_wheel_->CancelTask(i);
+            timer_wheel_->CancelTask(std::to_string(i));
         });
     }
 
@@ -387,7 +387,7 @@ TEST_F(TimerWheelTest, ConcurrentMixedOperations)
     for (int i = num_tasks / 3; i < num_tasks * 2 / 3; ++i) {
         threads.emplace_back([this, i]() {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            timer_wheel_->UpdateTask(i);
+            timer_wheel_->UpdateTask(std::to_string(i));
         });
     }
 
@@ -411,7 +411,7 @@ TEST_F(TimerWheelTest, ZeroTimeoutTask)
 {
     std::atomic<bool> executed{false};
 
-    timer_wheel_->SetTask(1, 0, [&executed]() {
+    timer_wheel_->SetTask("task1", 0, [&executed]() {
         executed = true;
     });
 
@@ -428,7 +428,7 @@ TEST_F(TimerWheelTest, TimeoutExceedsWheelSize)
 
     // 时间轮大小为60，设置超时为65
     // 65 % 60 = 5，所以实际在第5个槽位
-    timer_wheel_->SetTask(1, 65, [&executed]() {
+    timer_wheel_->SetTask("task1", 65, [&executed]() {
         executed = true;
     });
 
@@ -444,7 +444,7 @@ TEST_F(TimerWheelTest, TaskWithLambdaCapture)
     int captured_value = 42;
     std::atomic<int> result{0};
 
-    timer_wheel_->SetTask(1, 1, [captured_value, &result]() {
+    timer_wheel_->SetTask("task1", 1, [captured_value, &result]() {
         result = captured_value;
     });
 
@@ -456,7 +456,7 @@ TEST_F(TimerWheelTest, TaskWithLambdaCapture)
 // 测试空 Lambda 不会崩溃
 TEST_F(TimerWheelTest, EmptyLambdaTask)
 {
-    timer_wheel_->SetTask(1, 1, []() {});
+    timer_wheel_->SetTask("task1", 1, []() {});
 
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
@@ -485,7 +485,7 @@ TEST_F(TimerWheelTest, TimingAccuracyMultipleTasks)
         records[i].id = i;
         records[i].expected_timeout = i + 1;  // 1, 2, 3, 4, 5 秒
 
-        timer_wheel_->SetTask(i, i + 1, [&records, &mutex, i, start_time]() {
+        timer_wheel_->SetTask(std::to_string(i), i + 1, [&records, &mutex, i, start_time]() {
             std::lock_guard<std::mutex> lock(mutex);
             records[i].execution_time = std::chrono::steady_clock::now();
             records[i].executed = true;
@@ -521,9 +521,9 @@ TEST_F(TimerWheelTest, SetTaskInCallback)
 {
     std::atomic<int> execution_order{0};
 
-    timer_wheel_->SetTask(1, 1, [this, &execution_order]() {
+    timer_wheel_->SetTask("task1", 1, [this, &execution_order]() {
         execution_order = 1;
-        timer_wheel_->SetTask(2, 1, [&execution_order]() {
+        timer_wheel_->SetTask("task2", 1, [&execution_order]() {
             execution_order = 2;
         });
     });
@@ -541,19 +541,19 @@ TEST_F(TimerWheelTest, MixedOperations)
 
     // 设置10个任务
     for (int i = 0; i < 10; ++i) {
-        timer_wheel_->SetTask(i, 2, [&executed_count]() {
+        timer_wheel_->SetTask(std::to_string(i), 2, [&executed_count]() {
             executed_count++;
         });
     }
 
     // 取消3个任务
-    timer_wheel_->CancelTask(0);
-    timer_wheel_->CancelTask(2);
-    timer_wheel_->CancelTask(4);
+    timer_wheel_->CancelTask("0");
+    timer_wheel_->CancelTask("2");
+    timer_wheel_->CancelTask("4");
 
     // 更新2个任务（延长生命周期）
-    timer_wheel_->UpdateTask(1);
-    timer_wheel_->UpdateTask(3);
+    timer_wheel_->UpdateTask("1");
+    timer_wheel_->UpdateTask("3");
 
     // 等待任务执行
     std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -573,7 +573,7 @@ TEST_F(TimerWheelTest, HighVolumeTaskCreation)
     auto start = std::chrono::steady_clock::now();
 
     for (int i = 0; i < num_tasks; ++i) {
-        timer_wheel_->SetTask(i, 30, []() {});
+        timer_wheel_->SetTask(std::to_string(i), 30, []() {});
     }
 
     auto end = std::chrono::steady_clock::now();
@@ -584,7 +584,7 @@ TEST_F(TimerWheelTest, HighVolumeTaskCreation)
 
     // 取消所有任务避免等待
     for (int i = 0; i < num_tasks; ++i) {
-        timer_wheel_->CancelTask(i);
+        timer_wheel_->CancelTask(std::to_string(i));
     }
 }
 
@@ -592,8 +592,8 @@ TEST_F(TimerWheelTest, HighVolumeTaskCreation)
 TEST_F(TimerWheelTest, RapidSetAndCancel)
 {
     for (int i = 0; i < 100; ++i) {
-        timer_wheel_->SetTask(1, 10, []() {});
-        timer_wheel_->CancelTask(1);
+        timer_wheel_->SetTask("task1", 10, []() {});
+        timer_wheel_->CancelTask("task1");
     }
 
     // 不应该崩溃

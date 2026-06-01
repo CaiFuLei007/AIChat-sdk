@@ -8,20 +8,20 @@ namespace ai_sdk
 {
 
 
-bool SessionManager::HasUserName(const std::string& name)
+bool SessionManager::HasUserName(const std::string& email)
 {
-    auto it = user_table_.find(name);
+    auto it = user_table_.find(email);
     if(it != user_table_.end())
     {
         return true;
     }
     // 在数据库中进行查找
-    auto info = data_manager_->GetUser(name);
-    if(info.name.empty())
+    auto info = data_manager_->GetUser(email);
+    if(info.email.empty())
     {
         return false;
     }
-    user_table_.emplace(name , std::make_shared<UserInfo>(info));
+    user_table_.emplace(email , std::make_shared<UserInfo>(info));
     return true;
 }
 
@@ -83,18 +83,18 @@ std::string SessionManager::CreateUserId()
     return uuid;
 }
 
-std::string SessionManager::InsertNewUser(const std::string &name , const std::string& password)
+std::string SessionManager::InsertNewUser(const std::string &email , const std::string& password)
 {
     std::unique_lock<std::mutex> lock(mutex_);
 
     // 向数据库中插入新用户
-    if(HasUserName(name))
+    if(HasUserName(email))
     {
         return "";
     }
     UserInfo info = {
         .uid = CreateUserId() , 
-        .name = name , 
+        .email = email , 
         .password = password , 
         .create_time = time(nullptr) 
     };
@@ -103,11 +103,11 @@ std::string SessionManager::InsertNewUser(const std::string &name , const std::s
         return "";
     }
 
-    user_table_.emplace(name  , std::make_shared<UserInfo>(info));
-    timer_wheel_->SetTask(info.uid ,10 , [this,name](){         // 用户10分钟没有登录将其信息仅在磁盘上进行存储
+    user_table_.emplace(email  , std::make_shared<UserInfo>(info));
+    timer_wheel_->SetTask(info.uid ,10 , [this,email](){         // 用户10分钟没有登录将其信息仅在磁盘上进行存储
         std::unique_lock<std::mutex> lock(mutex_);
         
-        auto it = user_table_.find(name);
+        auto it = user_table_.find(email);
         if(it == user_table_.end())
         {
             return ;
@@ -118,18 +118,18 @@ std::string SessionManager::InsertNewUser(const std::string &name , const std::s
     return info.uid;
 }
 
-std::shared_ptr<UserInfo> SessionManager::GetUserInfo(const std::string& name)
+std::shared_ptr<UserInfo> SessionManager::GetUserInfo(const std::string& email)
 {
     std::unique_lock<std::mutex> lock(mutex_);
 
-    if(!HasUserName(name))
+    if(!HasUserName(email))
     {
         return nullptr;
     }
 
     // 1. 在内存中进行查找
     // 2. 在磁盘中进行查找
-    auto it = user_table_.find(name);
+    auto it = user_table_.find(email);
     if(it != user_table_.end() && it->second)
     {
         // 更新时间
@@ -138,14 +138,14 @@ std::shared_ptr<UserInfo> SessionManager::GetUserInfo(const std::string& name)
     }
     else
     {
-        auto info = data_manager_->GetUser(name);
+        auto info = data_manager_->GetUser(email);
         auto info_ptr = std::make_shared<UserInfo>(info);
         it->second = info_ptr;
 
-        timer_wheel_->SetTask(info.uid ,10 , [this,name](){         // 用户10分钟没有登录将其信息仅在磁盘上进行存储
+        timer_wheel_->SetTask(info.uid ,10 , [this,email](){         // 用户10分钟没有登录将其信息仅在磁盘上进行存储
             std::unique_lock<std::mutex> lock(mutex_);
 
-            auto it = user_table_.find(name);
+            auto it = user_table_.find(email);
             if(it == user_table_.end())
             {
                 return ;

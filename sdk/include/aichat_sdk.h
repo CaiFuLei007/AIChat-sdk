@@ -42,9 +42,9 @@ public:
 
     std::vector<ModelInfo> GetAllModels();
 
-    bool HasUser(const std::string& name);
-    std::shared_ptr<UserInfo> GetUser(const std::string& name , const std::string& password);
-    std::string CreateUser(const std::string& name , const std::string& password);
+    bool HasUser(const std::string& email);
+    std::shared_ptr<UserInfo> GetUser(const std::string& email , const std::string& password);
+    std::string CreateUser(const std::string& email , const std::string& password);
 
     std::string SendMessage(const std::string& ssid , const std::string& message);
     std::string SendMessageStream(const std::string& ssid , const std::string& message , MessageCallback callback);

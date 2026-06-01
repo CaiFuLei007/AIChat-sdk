@@ -64,7 +64,7 @@ TEST_F(GeminiProviderTest, SendMessageReturnsResponse)
     ASSERT_TRUE(provider_.Init(config_));
 
     std::vector<ai_sdk::Message> messages = {
-        {"user", "Reply with one word: hello", 0}
+        {"", "", "user", "Reply with one word: hello", 0}
     };
 
     std::string response = provider_.SendMessage(messages);
@@ -77,7 +77,7 @@ TEST_F(GeminiProviderTest, SendMessageStreamReturnsResponse)
     ASSERT_TRUE(provider_.Init(config_));
 
     std::vector<ai_sdk::Message> messages = {
-        {"user", "Reply with one word: hello", 0}
+        {"", "", "user", "Reply with one word: hello", 0}
     };
 
     std::string streamed_content;

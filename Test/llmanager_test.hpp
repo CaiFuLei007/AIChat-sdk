@@ -82,14 +82,14 @@ TEST_F(LLManagerTest, SendMessageToRegisteredProvider)
     manager_.RegisterProvider("mock", std::make_unique<MockProvider>());
     manager_.InitProvider("mock", MakeConfig("mock"));
 
-    std::vector<ai_sdk::Message> msgs = {{"user", "hello", 0}};
+    std::vector<ai_sdk::Message> msgs = {{"", "", "user", "hello", 0}};
     std::string reply = manager_.SendMessage("mock", msgs);
     EXPECT_EQ(reply, "mock_reply:hello");
 }
 
 TEST_F(LLManagerTest, SendMessageToUnregisteredReturnsEmpty)
 {
-    std::vector<ai_sdk::Message> msgs = {{"user", "hello", 0}};
+    std::vector<ai_sdk::Message> msgs = {{"", "", "user", "hello", 0}};
     EXPECT_TRUE(manager_.SendMessage("unknown", msgs).empty());
 }
 
@@ -98,7 +98,7 @@ TEST_F(LLManagerTest, SendMessageStreamToRegisteredProvider)
     manager_.RegisterProvider("mock", std::make_unique<MockProvider>());
     manager_.InitProvider("mock", MakeConfig("mock"));
 
-    std::vector<ai_sdk::Message> msgs = {{"user", "hello", 0}};
+    std::vector<ai_sdk::Message> msgs = {{"", "", "user", "hello", 0}};
     std::string streamed;
     bool got_finish = false;
 
@@ -115,7 +115,7 @@ TEST_F(LLManagerTest, SendMessageStreamToRegisteredProvider)
 
 TEST_F(LLManagerTest, SendMessageStreamToUnregisteredReturnsEmpty)
 {
-    std::vector<ai_sdk::Message> msgs = {{"user", "hello", 0}};
+    std::vector<ai_sdk::Message> msgs = {{"", "", "user", "hello", 0}};
     std::string result = manager_.SendMessageStream("unknown", msgs, [](const std::string&, bool){});
     EXPECT_TRUE(result.empty());
 }

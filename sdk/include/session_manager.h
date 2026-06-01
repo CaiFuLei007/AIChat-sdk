@@ -11,8 +11,8 @@
 
     - 接口 : 
             1) 用户相关操作 
-                    1) 创建新用户 (name , password)
-                    2) 获取用户的信息 (name) 
+                    1) 创建新用户 (email , password)
+                    2) 获取用户的信息 (email) 
                     3) 删除用户 (uid)
             2) 会话相关操作
                     1) 创建新会话 (uid , model_name)
@@ -54,8 +54,8 @@ private:
 public:
         SessionManager(const std::string& db_name);
 
-        std::string InsertNewUser(const std::string &name , const std::string& password);
-        std::shared_ptr<UserInfo> GetUserInfo(const std::string& name);
+        std::string InsertNewUser(const std::string &email , const std::string& password);
+        std::shared_ptr<UserInfo> GetUserInfo(const std::string& email);
 
         std::string CreateSession(const std::string &uid , const std::string& model_name);
         bool RemoveSession(const std::string& ssid);
@@ -65,7 +65,7 @@ public:
         bool CreateNewMessage(const std::string &ssid , const std::string& role , const std::string& content);
         std::vector<Message> GetSessionAllMessage(const std::string& ssid);
 
-        bool HasUserName(const std::string& name);
+        bool HasUserName(const std::string& email);
         bool HasSession(const std::string& ssid);
 };
 

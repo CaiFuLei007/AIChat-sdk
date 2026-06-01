@@ -57,16 +57,16 @@ protected:
 // 测试创建新用户
 TEST_F(SessionManagerTest, InsertNewUser)
 {
-    bool result = session_manager_->InsertNewUser("test_user", "password123");
-    EXPECT_TRUE(result) << "应该成功创建新用户";
+    std::string result = session_manager_->InsertNewUser("test_user", "password123");
+    EXPECT_FALSE(result.empty()) << "应该成功创建新用户";
 }
 
 // 测试创建重复用户名
 TEST_F(SessionManagerTest, InsertDuplicateUser)
 {
     session_manager_->InsertNewUser("test_user", "password123");
-    bool result = session_manager_->InsertNewUser("test_user", "different_password");
-    EXPECT_FALSE(result) << "不应该允许创建重复用户名";
+    std::string result = session_manager_->InsertNewUser("test_user", "different_password");
+    EXPECT_TRUE(result.empty()) << "不应该允许创建重复用户名";
 }
 
 // 测试获取用户信息
@@ -77,7 +77,7 @@ TEST_F(SessionManagerTest, GetUserInfo)
     auto user_info = session_manager_->GetUserInfo("test_user");
 
     ASSERT_NE(user_info, nullptr) << "应该能获取到用户信息";
-    EXPECT_EQ(user_info->name, "test_user");
+    EXPECT_EQ(user_info->email, "test_user");
     EXPECT_EQ(user_info->password, "password123");
     EXPECT_FALSE(user_info->uid.empty()) << "用户ID不应该为空";
 }
@@ -131,7 +131,7 @@ TEST_F(SessionManagerTest, InsertMultipleUsers)
     {
         std::string name = "user_" + std::to_string(i);
         std::string password = "password_" + std::to_string(i);
-        EXPECT_TRUE(session_manager_->InsertNewUser(name, password));
+        EXPECT_FALSE(session_manager_->InsertNewUser(name, password).empty());
     }
 
     // 验证所有用户都存在
@@ -142,7 +142,7 @@ TEST_F(SessionManagerTest, InsertMultipleUsers)
 
         auto user_info = session_manager_->GetUserInfo(name);
         ASSERT_NE(user_info, nullptr);
-        EXPECT_EQ(user_info->name, name);
+        EXPECT_EQ(user_info->email, name);
     }
 }
 
@@ -382,7 +382,7 @@ TEST_F(SessionManagerTest, ConcurrentInsertUsers)
     {
         threads.emplace_back([this, i, &success_count]() {
             std::string name = "concurrent_user_" + std::to_string(i);
-            if (session_manager_->InsertNewUser(name, "password"))
+            if (!session_manager_->InsertNewUser(name, "password").empty())
             {
                 success_count++;
             }
@@ -477,7 +477,7 @@ TEST_F(SessionManagerTest, ConcurrentReadWrite)
 // 测试空用户名
 TEST_F(SessionManagerTest, EmptyUserName)
 {
-    bool result = session_manager_->InsertNewUser("", "password123");
+    std::string result = session_manager_->InsertNewUser("", "password123");
     // 根据实现，空用户名可能被允许或拒绝
     // 这里只验证不会崩溃
     SUCCEED();
@@ -486,7 +486,7 @@ TEST_F(SessionManagerTest, EmptyUserName)
 // 测试空密码
 TEST_F(SessionManagerTest, EmptyPassword)
 {
-    bool result = session_manager_->InsertNewUser("test_user", "");
+    std::string result = session_manager_->InsertNewUser("test_user", "");
     // 根据实现，空密码可能被允许或拒绝
     // 这里只验证不会崩溃
     SUCCEED();
@@ -495,19 +495,19 @@ TEST_F(SessionManagerTest, EmptyPassword)
 // 测试特殊字符用户名
 TEST_F(SessionManagerTest, SpecialCharacterUserName)
 {
-    bool result = session_manager_->InsertNewUser("user@test.com", "password123");
-    EXPECT_TRUE(result);
+    std::string result = session_manager_->InsertNewUser("user@test.com", "password123");
+    EXPECT_FALSE(result.empty());
 
     auto user_info = session_manager_->GetUserInfo("user@test.com");
     ASSERT_NE(user_info, nullptr);
-    EXPECT_EQ(user_info->name, "user@test.com");
+    EXPECT_EQ(user_info->email, "user@test.com");
 }
 
 // 测试长用户名
 TEST_F(SessionManagerTest, LongUserName)
 {
     std::string long_name(256, 'a');
-    bool result = session_manager_->InsertNewUser(long_name, "password123");
+    std::string result = session_manager_->InsertNewUser(long_name, "password123");
     // 验证不会崩溃
     SUCCEED();
 }
@@ -549,7 +549,7 @@ TEST_F(SessionManagerTest, LongMessageContent)
 TEST_F(SessionManagerTest, FullUserSessionFlow)
 {
     // 1. 创建用户
-    ASSERT_TRUE(session_manager_->InsertNewUser("alice", "alice_password"));
+    ASSERT_FALSE(session_manager_->InsertNewUser("alice", "alice_password").empty());
 
     // 2. 获取用户信息
     auto alice = session_manager_->GetUserInfo("alice");
@@ -663,7 +663,7 @@ TEST_F(SessionManagerTest, AccessRefreshesTimer)
     {
         auto user_info = session_manager_->GetUserInfo("test_user");
         ASSERT_NE(user_info, nullptr);
-        EXPECT_EQ(user_info->name, "test_user");
+        EXPECT_EQ(user_info->email, "test_user");
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
@@ -710,7 +710,7 @@ TEST_F(SessionManagerTest, TimerExpiryAndReloadFromDatabase)
     auto reloaded_user = session_manager_->GetUserInfo("timer_test_user");
     ASSERT_NE(reloaded_user, nullptr);
     EXPECT_EQ(reloaded_user->uid, uid);
-    EXPECT_EQ(reloaded_user->name, "timer_test_user");
+    EXPECT_EQ(reloaded_user->email, "timer_test_user");
 
     EXPECT_TRUE(session_manager_->HasSession(ssid));
 
@@ -730,19 +730,19 @@ TEST_F(SessionManagerTest, TimerExpiryAndReloadFromDatabase)
 // 测试中文用户名
 TEST_F(SessionManagerTest, ChineseUserName)
 {
-    bool result = session_manager_->InsertNewUser("张三", "password123");
-    EXPECT_TRUE(result);
+    std::string result = session_manager_->InsertNewUser("张三", "password123");
+    EXPECT_FALSE(result.empty());
 
     auto user_info = session_manager_->GetUserInfo("张三");
     ASSERT_NE(user_info, nullptr);
-    EXPECT_EQ(user_info->name, "张三");
+    EXPECT_EQ(user_info->email, "张三");
 }
 
 // 测试中文密码
 TEST_F(SessionManagerTest, ChinesePassword)
 {
-    bool result = session_manager_->InsertNewUser("test_user", "密码123");
-    EXPECT_TRUE(result);
+    std::string result = session_manager_->InsertNewUser("test_user", "密码123");
+    EXPECT_FALSE(result.empty());
 
     auto user_info = session_manager_->GetUserInfo("test_user");
     ASSERT_NE(user_info, nullptr);

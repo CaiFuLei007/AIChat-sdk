@@ -55,11 +55,11 @@ protected:
     }
 
     // 辅助方法：创建一个测试用户并返回 uid
-    std::string CreateTestUser(const std::string& name = "test_user",
+    std::string CreateTestUser(const std::string& email = "test_user",
                                 const std::string& password = "password123")
     {
-        std::string uid = sdk_->CreateUser(name, password);
-        EXPECT_FALSE(uid.empty()) << "创建测试用户失败: " << name;
+        std::string uid = sdk_->CreateUser(email, password);
+        EXPECT_FALSE(uid.empty()) << "创建测试用户失败: " << email;
         return uid;
     }
 
@@ -283,7 +283,7 @@ TEST_F(AIChatSdkTest, GetUserWithCorrectPassword)
 
     auto user = sdk_->GetUser("dave", "secret123");
     ASSERT_NE(user, nullptr);
-    EXPECT_EQ(user->name, "dave");
+    EXPECT_EQ(user->email, "dave");
     EXPECT_EQ(user->password, "secret123");
     EXPECT_FALSE(user->uid.empty());
 }
@@ -321,9 +321,9 @@ TEST_F(AIChatSdkTest, CreateMultipleUsers)
 
     for (int i = 0; i < num_users; ++i)
     {
-        std::string name = "multi_user_" + std::to_string(i);
-        std::string uid = sdk_->CreateUser(name, "password");
-        EXPECT_FALSE(uid.empty()) << "用户 " << name << " 创建失败";
+        std::string email = "multi_user_" + std::to_string(i);
+        std::string uid = sdk_->CreateUser(email, "password");
+        EXPECT_FALSE(uid.empty()) << "用户 " << email << " 创建失败";
         uids.push_back(uid);
     }
 
@@ -334,12 +334,12 @@ TEST_F(AIChatSdkTest, CreateMultipleUsers)
     // 验证所有用户都可以查到
     for (int i = 0; i < num_users; ++i)
     {
-        std::string name = "multi_user_" + std::to_string(i);
-        EXPECT_TRUE(sdk_->HasUser(name));
+        std::string email = "multi_user_" + std::to_string(i);
+        EXPECT_TRUE(sdk_->HasUser(email));
 
-        auto user = sdk_->GetUser(name, "password");
+        auto user = sdk_->GetUser(email, "password");
         ASSERT_NE(user, nullptr);
-        EXPECT_EQ(user->name, name);
+        EXPECT_EQ(user->email, email);
     }
 }
 
@@ -623,7 +623,7 @@ TEST_F(AIChatSdkTest, FullIntegrationFlow)
     // 4. 验证密码认证
     auto user = sdk_->GetUser("integration_user", "mypassword");
     ASSERT_NE(user, nullptr);
-    EXPECT_EQ(user->name, "integration_user");
+    EXPECT_EQ(user->email, "integration_user");
     EXPECT_EQ(user->uid, uid);
 
     // 5. 创建会话
@@ -723,7 +723,7 @@ TEST_F(AIChatSdkTest, SpecialCharacterUserName)
 
     auto user = sdk_->GetUser("user@test.com", "pass");
     ASSERT_NE(user, nullptr);
-    EXPECT_EQ(user->name, "user@test.com");
+    EXPECT_EQ(user->email, "user@test.com");
 }
 
 // 测试特殊字符密码
@@ -784,7 +784,7 @@ TEST_F(AIChatSdkTest, ChineseUserName)
 
     auto user = sdk_->GetUser("张三", "密码123");
     ASSERT_NE(user, nullptr);
-    EXPECT_EQ(user->name, "张三");
+    EXPECT_EQ(user->email, "张三");
     EXPECT_EQ(user->password, "密码123");
 }
 
@@ -851,7 +851,7 @@ TEST_F(AIChatSdkTest, DataPersistenceAfterRestart)
     EXPECT_TRUE(sdk_->HasUser("persist_user")) << "用户应该持久化到磁盘";
     auto restored_user = sdk_->GetUser("persist_user", "persist_pass");
     ASSERT_NE(restored_user, nullptr) << "应该能从数据库恢复用户信息";
-    EXPECT_EQ(restored_user->name, "persist_user");
+    EXPECT_EQ(restored_user->email, "persist_user");
     EXPECT_EQ(restored_user->uid, uid);
 
     // 验证会话数据持久化

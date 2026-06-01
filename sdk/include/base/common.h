@@ -15,7 +15,7 @@ namespace ai_sdk
 struct UserInfo
 {
     std::string uid;
-    std::string name;
+    std::string email;
     std::string password;
 
     time_t create_time;
