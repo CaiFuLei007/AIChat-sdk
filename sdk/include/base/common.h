@@ -56,7 +56,7 @@ enum class ModelType{
 
 struct Config
 {
-    ModelType type;
+    ModelType model_type;
     ModelInfo model_info;       // 展示给用户的
 
     std::string end_point;

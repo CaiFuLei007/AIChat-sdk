@@ -321,7 +321,7 @@ Session DataManager::GetSession(const std::string &ssid)
         session.session_id = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
         session.model_name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
         session.create_time = sqlite3_column_int64(stmt, 3);
-        session.update_time = sqlite3_column_int64(stmt, 3);
+        session.update_time = sqlite3_column_int64(stmt, 4);
     }
     sqlite3_finalize(stmt);
     if (rc != SQLITE_DONE) {

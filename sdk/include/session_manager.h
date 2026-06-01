@@ -54,7 +54,7 @@ private:
 public:
         SessionManager(const std::string& db_name);
 
-        bool InsertNewUser(const std::string &name , const std::string& password);
+        std::string InsertNewUser(const std::string &name , const std::string& password);
         std::shared_ptr<UserInfo> GetUserInfo(const std::string& name);
 
         std::string CreateSession(const std::string &uid , const std::string& model_name);

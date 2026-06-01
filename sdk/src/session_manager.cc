@@ -83,14 +83,14 @@ std::string SessionManager::CreateUserId()
     return uuid;
 }
 
-bool SessionManager::InsertNewUser(const std::string &name , const std::string& password)
+std::string SessionManager::InsertNewUser(const std::string &name , const std::string& password)
 {
     std::unique_lock<std::mutex> lock(mutex_);
 
     // 向数据库中插入新用户
     if(HasUserName(name))
     {
-        return false;
+        return "";
     }
     UserInfo info = {
         .uid = CreateUserId() , 
@@ -100,7 +100,7 @@ bool SessionManager::InsertNewUser(const std::string &name , const std::string& 
     };
     if(!data_manager_->InsertUser(info))
     {
-        return false;
+        return "";
     }
 
     user_table_.emplace(name  , std::make_shared<UserInfo>(info));
@@ -115,7 +115,7 @@ bool SessionManager::InsertNewUser(const std::string &name , const std::string& 
         it->second = nullptr;
     });
 
-    return true;
+    return info.uid;
 }
 
 std::shared_ptr<UserInfo> SessionManager::GetUserInfo(const std::string& name)
