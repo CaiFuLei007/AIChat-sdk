@@ -37,6 +37,7 @@ namespace ai_sdk
 
 class SessionManager
 {
+        using Task = std::function<void()>;
 private:
         std::unordered_map<std::string , std::shared_ptr<UserInfo> > user_table_;
         std::unordered_map<std::string , std::shared_ptr<Session> > session_table_;
@@ -67,6 +68,10 @@ public:
 
         bool HasUserName(const std::string& email);
         bool HasSession(const std::string& ssid);
+
+
+        void AddTimerTask(const std::string& id, int timeout , Task task);
+        void RemoveTask(const std::string &id);
 };
 
 } // end ai_sdk

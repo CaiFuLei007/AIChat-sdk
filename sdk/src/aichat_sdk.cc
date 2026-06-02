@@ -125,4 +125,19 @@ bool AIChatSdk::RemoveSession(const std::string& ssid)
     return session_manager_->RemoveSession(ssid);
 }
 
+void AIChatSdk::AddTimerTask(const std::string& id, int timeout , Task task)
+{   
+    session_manager_->AddTimerTask(id , timeout , task);
+}
+void AIChatSdk::RemoveTask(const std::string &id)
+{
+    session_manager_->RemoveTask(id);
+}
+
+std::shared_ptr<Session> AIChatSdk::GetSession(const std::string & ssid)
+{
+    return session_manager_->GetSession(ssid);
+}
+
+
 } // end ai_sdk

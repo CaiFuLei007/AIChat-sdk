@@ -50,6 +50,7 @@ add_executable(all_test
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/../sdk/include
+    ${CMAKE_SOURCE_DIR}/../aichat_server/src
 )
 
 find_package(GTest REQUIRED)
@@ -65,6 +66,8 @@ find_library(SQLITE3_LIB
   REQUIRED
 )
 
+find_package(CURL REQUIRED)
+
 target_compile_definitions(all_test PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
 
 target_link_libraries(
@@ -78,4 +81,5 @@ target_link_libraries(
     OpenSSL::SSL
     OpenSSL::Crypto
     ${SQLITE3_LIB}
+    CURL::libcurl
 )

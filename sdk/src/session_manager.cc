@@ -247,6 +247,8 @@ std::shared_ptr<Session> SessionManager::GetSessionUnLock(const std::string& ssi
     {
         auto session = data_manager_->GetSession(ssid);
         auto session_ptr = std::make_shared<Session>(session);
+        session_ptr->messages = GetSessionAllMessage(ssid);
+        
         it->second = session_ptr;
         timer_wheel_->SetTask(session.session_id ,10 , [this , ssid](){         // 用户10分钟没有登录将其信息仅在磁盘上进行存储
             std::unique_lock<std::mutex> lock(mutex_);
@@ -340,5 +342,13 @@ std::vector<Message> SessionManager::GetSessionAllMessage(const std::string& ssi
     }
 }
 
+void SessionManager::AddTimerTask(const std::string& id, int timeout , Task task)
+{   
+    timer_wheel_->SetTask(id , timeout , task);
+}
+void SessionManager::RemoveTask(const std::string &id)
+{
+    timer_wheel_->CancelTask(id);
+}
 
 }; // end ai_sdk

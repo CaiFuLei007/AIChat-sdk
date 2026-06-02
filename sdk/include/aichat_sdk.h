@@ -28,6 +28,7 @@ namespace ai_sdk
 
 class AIChatSdk
 {
+    using Task = std::function<void()>;
     using MessageCallback = std::function<void(const std::string& message , bool finish)>;
 private:
     std::unique_ptr<LLManager> llmanager_;
@@ -51,8 +52,12 @@ public:
 
     std::string CreateSession(const std::string& uid, const std::string &model_name);
     std::vector<Session> GetUserAllSession(const std::string &uid);
-    
+    std::shared_ptr<Session> GetSession(const std::string & ssid);
+
     bool RemoveSession(const std::string& ssid);
+
+    void AddTimerTask(const std::string& id, int timeout , Task task);
+    void RemoveTask(const std::string &id);
 };
 
 
