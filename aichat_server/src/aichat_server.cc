@@ -23,6 +23,8 @@ bool AIChatServer::serialize(const ::Json::Value &json, std::string &json_str)
     std::stringstream ss;
     writer->write(json, &ss);
     json_str = ss.str();
+
+    return true;
 }
 
 bool AIChatServer::SendVerification(const std::string &email)
@@ -31,7 +33,17 @@ bool AIChatServer::SendVerification(const std::string &email)
 
     int info = rand() % 90000 + 10000;
     std::string info_str = std::to_string(info);
-    bool ret = curl_->Send({email}, info_str);
+
+    std::string message = 
+        "Subject: [AIChat] Verification Code\r\n"
+        "Content-Type: text/plain; charset=utf-8\r\n"
+        "\r\n"
+        "您的验证码为：" + info_str + "\r\n"
+        "\r\n"
+        "该验证码 5 分钟内有效，请勿泄露给他人。\r\n";
+
+
+    bool ret = curl_->Send({email}, message);
     if(!ret)
     {
         return false;
@@ -439,7 +451,7 @@ void AIChatServer::SetRouter()
     });
 
     // 会话
-    server_.Get("/api/users/{uid}/sessions", [this](const httplib::Request& req, httplib::Response& res) {
+    server_.Get("/api/users/:uid/sessions", [this](const httplib::Request& req, httplib::Response& res) {
         this->HandleGetUserSessions(req, res);
     });
     
@@ -447,22 +459,25 @@ void AIChatServer::SetRouter()
         this->HandleCreateSession(req, res);
     });
     
-    server_.Delete("/api/sessions/{ssid}", [this](const httplib::Request& req, httplib::Response& res) {
+    server_.Delete("/api/sessions/:ssid", [this](const httplib::Request& req, httplib::Response& res) {
         this->HandleRemoveSession(req, res);
     });
 
     // 消息（待实现的 3 个）
-    server_.Get("/api/sessions/{ssid}/messages", [this](const httplib::Request& req, httplib::Response& res) {
+    server_.Get("/api/sessions/:ssid/messages", [this](const httplib::Request& req, httplib::Response& res) {
         this->HandleGetSessionAllMessage(req, res);
     });
     
-    server_.Post("/api/sessions/{ssid}/messages", [this](const httplib::Request& req, httplib::Response& res) {
+    server_.Post("/api/sessions/:ssid/messages", [this](const httplib::Request& req, httplib::Response& res) {
         this->HandleSendMessage(req, res);
     });
     
-    server_.Post("/api/sessions/{ssid}/messages/stream", [this](const httplib::Request& req, httplib::Response& res) {
+    server_.Post("/api/sessions/:ssid/messages/stream", [this](const httplib::Request& req, httplib::Response& res) {
         this->HandleSendMessageStream(req, res);
     });
+
+    // 静态文件（前端页面）
+    server_.set_mount_point("/", "./web");
 
     return ;
 }

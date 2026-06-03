@@ -136,9 +136,9 @@ bool TimerWheel::HasTask(const std::string &id)
 void TimerWheel::Ready()
 {
     struct itimerspec ts;
-    ts.it_interval.tv_sec = 1;  // 超时时间
+    ts.it_interval.tv_sec = 60;  // 超时时间
     ts.it_interval.tv_nsec = 0;
-    ts.it_value.tv_sec = 1;
+    ts.it_value.tv_sec = 60;
     ts.it_value.tv_nsec = 0;
     int ret = timerfd_settime(timerfd_, 0, &ts, NULL);
     if (ret) {
