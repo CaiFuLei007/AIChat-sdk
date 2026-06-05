@@ -46,6 +46,7 @@ find_package(spdlog REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(fmt REQUIRED)
 find_package(CURL REQUIRED)
+find_package(gflags REQUIRED)
 
 find_library(SQLITE3_LIB
     NAMES libsqlite3.so
@@ -66,4 +67,5 @@ target_link_libraries(
     OpenSSL::Crypto
     ${SQLITE3_LIB}
     CURL::libcurl
+    gflags
 )

@@ -1,0 +1,18 @@
+{
+    "server": {
+        "ip": "0.0.0.0",
+        "port": 8080,
+        "db_name": "aichat.db",
+        "web_dir": ""
+    },
+    "smtp": {
+        "url": "",
+        "from": "",
+        "password": ""
+    },
+    "models": {
+        "deepseek_apikey": "",
+        "chatgpt_apikey": "",
+        "gemini_apikey": ""
+    }
+}
