@@ -67,3 +67,11 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# Ignore all hidden files/directories (except .gitignore)
+.*
+!.gitignore
+
+# Frontend
+aichat_server/frontend/node_modules/
+aichat_server/web/

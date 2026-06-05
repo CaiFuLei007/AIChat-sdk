@@ -30,6 +30,8 @@ private:
     std::unordered_map<std::string , std::string> verification_code_;
 
     std::unique_ptr<util::Curl> curl_;
+    std::string web_dir_;
+    std::string mount_point_;
 
 private:
     static bool unserialize(const std::string& json ,  ::Json::Value& value);
@@ -55,7 +57,8 @@ private:
 
 public:
     AIChatServer(const std::string &db_name , const util::Config_info &config);
-   
+
+    void SetWebRoot(const std::string &mount_point, const std::string &web_dir);
     void RegisterModels(const std::vector<ai_sdk::Config> &configs);
     void Run(const std::string &ip , uint16_t port);
 

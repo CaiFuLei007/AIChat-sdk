@@ -1,6 +1,8 @@
 
 #include "aichat_server.h"
 #include "openssl/sha.h"
+#include <filesystem>
+#include <fstream>
 
 AIChatServer::AIChatServer(const std::string &db_name, const util::Config_info &config)
     : ai_sdk_(db_name),
@@ -19,6 +21,7 @@ bool AIChatServer::unserialize(const std::string &json, ::Json::Value &value)
 bool AIChatServer::serialize(const ::Json::Value &json, std::string &json_str)
 {
     ::Json::StreamWriterBuilder builder;
+    builder["indentation"] = "";  // 紧凑格式，无换行缩进
     std::unique_ptr<::Json::StreamWriter> writer(builder.newStreamWriter());
     std::stringstream ss;
     writer->write(json, &ss);
@@ -132,7 +135,16 @@ void AIChatServer::HandleRegister(const httplib::Request &request, httplib::Resp
     unsigned char hash_password[SHA256_DIGEST_LENGTH];
     SHA256((const unsigned char *)password.c_str(), password.size(), hash_password);
 
-    std::string uid = ai_sdk_.CreateUser(email , std::string((const char*)hash_password, SHA256_DIGEST_LENGTH));
+    // 将二进制哈希转为十六进制字符串，避免 null 字节截断问题
+    static const char hex_chars[] = "0123456789abcdef";
+    std::string hex_password;
+    hex_password.reserve(SHA256_DIGEST_LENGTH * 2);
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
+        hex_password.push_back(hex_chars[(hash_password[i] >> 4) & 0x0F]);
+        hex_password.push_back(hex_chars[hash_password[i] & 0x0F]);
+    }
+
+    std::string uid = ai_sdk_.CreateUser(email , hex_password);
 
     Json::Value response_json;
     response_json["code"] = 0;
@@ -162,7 +174,15 @@ void AIChatServer::HandleLogin(const httplib::Request &request, httplib::Respons
     std::string password = body_json["password"].asString();
     unsigned char hash_password[SHA256_DIGEST_LENGTH];
     SHA256((const unsigned char *)password.c_str(), password.size(), hash_password);
-    password = std::string((const char*)hash_password, SHA256_DIGEST_LENGTH);
+
+    // 将二进制哈希转为十六进制字符串，与注册时保持一致
+    static const char hex_chars[] = "0123456789abcdef";
+    password.clear();
+    password.reserve(SHA256_DIGEST_LENGTH * 2);
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
+        password.push_back(hex_chars[(hash_password[i] >> 4) & 0x0F]);
+        password.push_back(hex_chars[hash_password[i] & 0x0F]);
+    }
 
     if(!ai_sdk_.HasUser(email))
     {
@@ -403,6 +423,9 @@ void AIChatServer::HandleSendMessageStream(const httplib::Request &request, http
 
         auto message_callback = [&](const std::string& data , bool finish)
         {
+            std::cout << data << '\n';
+            if(!finish && data.empty())
+                return true;
             Json::Value data_json;
             std::string body;
             data_json["content"] = data;
@@ -476,8 +499,6 @@ void AIChatServer::SetRouter()
         this->HandleSendMessageStream(req, res);
     });
 
-    // 静态文件（前端页面）
-    server_.set_mount_point("/", "./web");
 
     return ;
 }
@@ -490,12 +511,24 @@ void AIChatServer::RegisterModels(const std::vector<ai_sdk::Config>& configs)
     }
 }
 
+void AIChatServer::SetWebRoot(const std::string &mount_point, const std::string &web_dir)
+{
+    // 解析真实路径，去除 .. 等相对路径
+    namespace fs = std::filesystem;
+    web_dir_ = fs::canonical(fs::path(web_dir)).string();
+    mount_point_ = mount_point;
+}
 
 void AIChatServer::Run(const std::string &ip , uint16_t port)
 {
     SetRouter();
 
-    std::thread th([&]{
+    // 在 API 路由注册之后再挂载静态文件目录，确保 API 路由优先匹配
+    if (!web_dir_.empty()) {
+        server_.set_mount_point(mount_point_, web_dir_);
+    }
+
+    std::thread th([&,ip , port]{
         server_.listen(ip , port);
     });
 

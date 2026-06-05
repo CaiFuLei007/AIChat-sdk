@@ -52,6 +52,7 @@ private:
         std::string CreateUserId();
 
         std::shared_ptr<Session> GetSessionUnLock(const std::string& ssid);
+        std::vector<Message> GetSessionAllMessageUnLock(const std::string& ssid);
 public:
         SessionManager(const std::string& db_name);
 

@@ -1,6 +1,7 @@
 #include "aichat_server.h"
 #include "base/util/mylog.h"
 #include <cstdlib>
+#include <filesystem>
 
 static const char *GetEnv(const char *name)
 {
@@ -70,8 +71,8 @@ int main()
     {
         ai_sdk::Config cfg;
         cfg.model_type = ai_sdk::ModelType::GEMINI;
-        cfg.model = "gemini-2.0-flash";
-        cfg.model_info.model_name = "gemini-2.0-flash";
+        cfg.model = "gemini-3.5-flash";
+        cfg.model_info.model_name = "gemini-3.5-flash";
         cfg.model_info.model_decs = "Gemini AI 模型";
         cfg.apikey = gemini_key;
         configs.push_back(cfg);
@@ -84,6 +85,25 @@ int main()
     }
 
     server.RegisterModels(configs);
+
+    // ============ 设置静态文件目录 ============
+    // 可执行文件在 build/bin/，web/ 在 aichat_server/web/，即 ../../web
+    namespace fs = std::filesystem;
+    fs::path exe_dir;
+#ifdef __linux__
+    char buf[4096];
+    ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+    if (len > 0) {
+        buf[len] = '\0';
+        exe_dir = fs::path(buf).parent_path();
+    } else {
+        exe_dir = fs::current_path();
+    }
+#else
+    exe_dir = fs::current_path();
+#endif
+    fs::path web_dir = exe_dir / "../../web";
+    server.SetWebRoot("/", web_dir.string());
 
     // ============ 启动服务器 ============
     INFO("服务器启动 {}:{}", ip, port);

@@ -15,6 +15,7 @@ void JsonUtil::unserialize(const std::string& json ,  ::Json::Value& value)
 void JsonUtil::serialize(const ::Json::Value& json , std::string& json_str)
 {
     ::Json::StreamWriterBuilder builder;
+    builder["indentation"] = "";
     std::unique_ptr< ::Json::StreamWriter > writer(builder.newStreamWriter());
     std::stringstream ss;
     writer->write(json, &ss);

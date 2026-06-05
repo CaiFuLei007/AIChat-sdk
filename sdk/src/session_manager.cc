@@ -240,6 +240,10 @@ std::shared_ptr<Session> SessionManager::GetSessionUnLock(const std::string& ssi
     auto it = session_table_.find(ssid);
     if(it != session_table_.end() && it->second)
     {
+        if(it->second->messages.empty())
+        {
+            it->second->messages = GetSessionAllMessageUnLock(ssid);
+        }
         timer_wheel_->UpdateTask(it->second->session_id);
         return it->second;
     }
@@ -247,12 +251,12 @@ std::shared_ptr<Session> SessionManager::GetSessionUnLock(const std::string& ssi
     {
         auto session = data_manager_->GetSession(ssid);
         auto session_ptr = std::make_shared<Session>(session);
-        session_ptr->messages = GetSessionAllMessage(ssid);
-        
+        session_ptr->messages = GetSessionAllMessageUnLock(ssid);
+
         it->second = session_ptr;
         timer_wheel_->SetTask(session.session_id ,10 , [this , ssid](){         // 用户10分钟没有登录将其信息仅在磁盘上进行存储
             std::unique_lock<std::mutex> lock(mutex_);
-            
+
             auto it = session_table_.find(ssid);
             if(it == session_table_.end())
             {
@@ -294,10 +298,10 @@ bool SessionManager::CreateNewMessage(const std::string &ssid , const std::strin
     }
 
     Message message = {
-        .ssid = ssid , 
-        .mid = Getmid(ssid) , 
-        .role = role , 
-        .content = content , 
+        .ssid = ssid ,
+        .mid = Getmid(ssid) ,
+        .role = role ,
+        .content = content ,
         .create_time = time(nullptr)
     };
     if(!data_manager_->InsertMessage(message))
@@ -309,9 +313,8 @@ bool SessionManager::CreateNewMessage(const std::string &ssid , const std::strin
     return true;
 }
 
-std::vector<Message> SessionManager::GetSessionAllMessage(const std::string& ssid)
+std::vector<Message> SessionManager::GetSessionAllMessageUnLock(const std::string& ssid)
 {
-    std::unique_lock<std::mutex> lock(mutex_);
     if(!HasSession(ssid))
     {
         return {};
@@ -340,6 +343,12 @@ std::vector<Message> SessionManager::GetSessionAllMessage(const std::string& ssi
         it->second->messages = messages;
         return messages;
     }
+}
+
+std::vector<Message> SessionManager::GetSessionAllMessage(const std::string& ssid)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    return GetSessionAllMessageUnLock(ssid);
 }
 
 void SessionManager::AddTimerTask(const std::string& id, int timeout , Task task)

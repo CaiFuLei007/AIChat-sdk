@@ -71,32 +71,37 @@ namespace util
             if (curl == nullptr)
             {
                 std::cout << "curl_easy_init() err\n";
-                return false;
+                return 0;
             }
             if (curl_easy_setopt(curl, CURLOPT_URL, config_.url.c_str()) != CURLE_OK)
             {
                 std::cout << "curl_easy_setopt : CURLOPT_URL error" << std::endl;
-                return -1;
+                curl_easy_cleanup(curl);
+                return 0;
             }
             if (curl_easy_setopt(curl, CURLOPT_USERNAME, config_.from.c_str()) != CURLE_OK)
             {
                 std::cout << "curl_easy_setopt : CURLOPT_USERNAME error" << std::endl;
-                return -1;
+                curl_easy_cleanup(curl);
+                return 0;
             }
             if (curl_easy_setopt(curl, CURLOPT_PASSWORD, config_.password.c_str()) != CURLE_OK)
             {
                 std::cout << "curl_easy_setopt : CURLOPT_PASSWORD error" << std::endl;
-                return -1;
+                curl_easy_cleanup(curl);
+                return 0;
             }
             if (curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L) != CURLE_OK)
             {
                 std::cout << "curl_easy_setopt : CURLOPT_UPLOAD error" << std::endl;
-                return -1;
+                curl_easy_cleanup(curl);
+                return 0;
             }
             if (curl_easy_setopt(curl, CURLOPT_MAIL_FROM, config_.from.c_str()) != CURLE_OK)
             {
                 std::cout << "curl_easy_setopt : CURLOPT_MAIL_FROM error" << std::endl;
-                return -1;
+                curl_easy_cleanup(curl);
+                return 0;
             }
             curl_slist *curl_clients = nullptr;
             for (auto client : clients)
@@ -104,27 +109,34 @@ namespace util
                 if ((curl_clients = curl_slist_append(curl_clients, client.c_str())) == nullptr)
                 {
                     std::cout << "curl_slist_append error" << std::endl;
-                    return -1;
+                    curl_easy_cleanup(curl);
+                    return 0;
                 }
             }
             if (curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, curl_clients) != CURLE_OK)
             {
                 std::cout << "curl_easy_setopt : CURLOPT_MAIL_RCPT error" << std::endl;
-                return -1;
+                curl_slist_free_all(curl_clients);
+                curl_easy_cleanup(curl);
+                return 0;
             }
 
             std::stringstream ss(message);
             if (curl_easy_setopt(curl, CURLOPT_READDATA, (void *)&ss) != CURLE_OK)
             {
                 std::cout << "curl_easy_setopt : CURLOPT_READDATA error" << std::endl;
-                return -1;
+                curl_slist_free_all(curl_clients);
+                curl_easy_cleanup(curl);
+                return 0;
             }
             auto ret = curl_easy_setopt(curl, CURLOPT_READFUNCTION, read_callback);
 
             if (ret != CURLE_OK)
             {
                 std::cout << "curl_easy_setopt : CURLOPT_READFUNCTION error" << std::endl;
-                return -1;
+                curl_slist_free_all(curl_clients);
+                curl_easy_cleanup(curl);
+                return 0;
             }
 
             auto res = curl_easy_perform(curl);
@@ -132,11 +144,13 @@ namespace util
             {
                 std::cerr << "curl_easy_perform() failed: " << res
                           << " (" << curl_easy_strerror(res) << ")" << std::endl;
-                return -1;
+                curl_slist_free_all(curl_clients);
+                curl_easy_cleanup(curl);
+                return 0;
             }
             curl_slist_free_all(curl_clients);
             curl_easy_cleanup(curl);
-            return true;
+            return 1;
         }
 
         ~Curl()
