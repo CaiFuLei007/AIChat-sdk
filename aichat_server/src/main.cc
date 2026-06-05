@@ -82,6 +82,29 @@ int main(int argc, char *argv[])
     // ==================== 解析命令行参数 ====================
     gflags::ParseCommandLineFlags(&argc, &argv, true);
 
+    // 没有任何参数时显示帮助并退出
+    if (argc == 1 && FLAGS_config.empty())
+    {
+        std::cout << gflags::ProgramUsage() << std::endl;
+        std::cout << "可用参数:" << std::endl;
+        std::cout << "  --config          配置文件路径 (JSON 格式)" << std::endl;
+        std::cout << "  --ip              监听 IP 地址 (默认: 0.0.0.0)" << std::endl;
+        std::cout << "  --port            监听端口号 (默认: 8080)" << std::endl;
+        std::cout << "  --db_name         数据库文件名 (默认: aichat.db)" << std::endl;
+        std::cout << "  --web_dir         前端静态文件目录" << std::endl;
+        std::cout << "  --smtp_url        SMTP 服务器地址" << std::endl;
+        std::cout << "  --smtp_from       发件人邮箱" << std::endl;
+        std::cout << "  --smtp_password   SMTP 授权码" << std::endl;
+        std::cout << "  --deepseek_apikey DeepSeek API Key" << std::endl;
+        std::cout << "  --chatgpt_apikey  ChatGPT API Key" << std::endl;
+        std::cout << "  --gemini_apikey   Gemini API Key" << std::endl;
+        std::cout << std::endl;
+        std::cout << "示例:" << std::endl;
+        std::cout << "  ./aichat_server --config config.json" << std::endl;
+        std::cout << "  ./aichat_server --port 9090 --deepseek_apikey=sk-xxx" << std::endl;
+        return 0;
+    }
+
     // ==================== 初始化日志 ====================
     ai_sdk::Logger::initLogger("aichat_server", "stdout", spdlog::level::debug);
 
