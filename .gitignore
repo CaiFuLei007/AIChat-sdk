@@ -76,3 +76,4 @@ Testing/
 aichat_server/frontend/node_modules/
 aichat_server/aichat_server
 aichat_server/aichat.db
+aichat_server/INSTALL.md

@@ -79,7 +79,6 @@ std::string ChatGPTProvider::SendMessage(const std::vector<Message>& messages)
     };
 
     httplib::Client client(config_.end_point);
-    client.set_proxy("127.0.0.1" , 7897);
     auto ret = client.Post(config_.path , headers , body, "application/json");
     if(!ret)
     {
@@ -245,7 +244,6 @@ std::string ChatGPTProvider::SendMessageStream(const std::vector<Message> &messa
     };
 
     httplib::Client client(config_.end_point);
-    client.set_proxy("127.0.0.1" , 7897);
     bool ret = client.send(request);
     if(!ret)
     {
