@@ -1546,6 +1546,12 @@
             .sidebar-toggle {
                 left: var(--space-2);
                 top: var(--space-2);
+                z-index: 60;
+            }
+
+            /* 侧边栏打开时按钮移到右侧边缘，避免遮挡侧边栏内容 */
+            #app-page:has(.sidebar:not(.collapsed)) .sidebar-toggle {
+                left: calc(var(--sidebar-width) + var(--space-2));
             }
 
             .chat-header {
@@ -2250,7 +2256,18 @@
             const loadMessages = useCallback(async (ssid) => {
                 try {
                     const res = await api.getMessages(ssid);
-                    if (res.code === 0) setMessages(res.data.messages || []);
+                    if (res.code === 0) {
+                        const msgs = res.data.messages || [];
+                        // Deduplicate by message ID — prevents server-side duplicates
+                        // from being displayed twice (e.g. first message saved twice)
+                        const seen = new Set();
+                        const unique = msgs.filter(m => {
+                            if (seen.has(m.mid)) return false;
+                            seen.add(m.mid);
+                            return true;
+                        });
+                        setMessages(unique);
+                    }
                 } catch (e) {
                     toast('加载消息失败');
                 }

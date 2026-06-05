@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
 #else
         exe_dir = fs::current_path();
 #endif
-        web_dir = (exe_dir / "../web").string();
+        web_dir = (exe_dir / "../../web").string();
     }
     server.SetWebRoot("/", web_dir);
 

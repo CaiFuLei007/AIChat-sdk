@@ -514,8 +514,22 @@ void AIChatServer::SetWebRoot(const std::string &mount_point, const std::string 
 {
     // 解析真实路径，去除 .. 等相对路径
     namespace fs = std::filesystem;
-    web_dir_ = fs::canonical(fs::path(web_dir)).string();
+    std::error_code ec;
+    web_dir_ = fs::weakly_canonical(fs::path(web_dir), ec).string();
     mount_point_ = mount_point;
+
+    if (ec)
+    {
+        web_dir_.clear();
+        std::cerr << "[WARN] 无法解析静态文件目录: " << web_dir << " (" << ec.message() << ")" << std::endl;
+        return;
+    }
+
+    if (!fs::exists(web_dir_) || !fs::is_directory(web_dir_))
+    {
+        std::cerr << "[WARN] 静态文件目录不存在，将以纯 API 模式运行: " << web_dir_ << std::endl;
+        web_dir_.clear();
+    }
 }
 
 void AIChatServer::Run(const std::string &ip , uint16_t port)

@@ -304,11 +304,16 @@ bool SessionManager::CreateNewMessage(const std::string &ssid , const std::strin
         .content = content ,
         .create_time = time(nullptr)
     };
+
+    // 先从内存中获取 session，确保 messages 缓存已加载
+    // 必须在 InsertMessage 之前调用，否则 GetSessionAllMessageUnLock
+    // 会从 DB 读到刚插入的消息，之后 push_back 就会造成重复
+    auto sessoin_ptr = GetSessionUnLock(ssid);
+
     if(!data_manager_->InsertMessage(message))
     {
         return false;
     }
-    auto sessoin_ptr = GetSessionUnLock(ssid);
     sessoin_ptr->messages.push_back(message);
     return true;
 }
