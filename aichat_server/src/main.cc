@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
     std::string web_dir = FLAGS_web_dir;
     if (web_dir.empty())
     {
-        // 默认: 可执行文件的 ../../web
+        // 默认: 可执行文件的 ../web
         namespace fs = std::filesystem;
         fs::path exe_dir;
 #ifdef __linux__
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
 #else
         exe_dir = fs::current_path();
 #endif
-        web_dir = (exe_dir / "../../web").string();
+        web_dir = (exe_dir / "../web").string();
     }
     server.SetWebRoot("/", web_dir);
 
