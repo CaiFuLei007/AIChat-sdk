@@ -844,24 +844,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--ink-muted);
+            color: #D4879A;
             font-size: 1.2rem;
             transition: all 0.25s ease;
             border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            background: var(--paper-light);
-            border: 1px solid var(--sand-light);
+            box-shadow: 2px 2px 0 rgba(212, 135, 154, 0.25);
+            background: #FDF5F7;
+            border: 1px solid #F0C4CF;
         }
 
         .sidebar-toggle:hover {
-            color: var(--amber);
-            box-shadow: var(--shadow-md);
-            transform: translateY(-1px);
+            color: #C46078;
+            border-color: #E0A0B0;
+            box-shadow: 4px 4px 0 rgba(212, 135, 154, 0.35);
+            transform: translateY(-2px);
         }
 
         .sidebar-toggle:active {
             transform: translateY(0);
-            box-shadow: var(--shadow-xs);
+            box-shadow: 1px 1px 0 rgba(212, 135, 154, 0.2);
         }
 
         /* Empty state — magazine editorial */
@@ -954,6 +955,205 @@
             flex-direction: column;
             gap: var(--space-5);
             scroll-behavior: smooth;
+        }
+
+        /* =================================================================
+           MODEL SELECTION MODAL
+           ================================================================= */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(44, 36, 22, 0.45);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-card {
+            background: var(--paper-light);
+            border: 1px solid var(--sand-light);
+            box-shadow: var(--shadow-lg);
+            padding: var(--space-8) var(--space-10);
+            width: 420px;
+            max-width: 92vw;
+            animation: modalSlideIn 0.3s ease;
+            position: relative;
+        }
+
+        .modal-card::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 1px dashed var(--sand);
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--ink);
+            text-align: center;
+            margin-bottom: var(--space-2);
+            letter-spacing: 0.03em;
+        }
+
+        .modal-subtitle {
+            text-align: center;
+            color: var(--ink-muted);
+            font-size: 0.82rem;
+            margin-bottom: var(--space-6);
+        }
+
+        .model-option-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+            margin-bottom: var(--space-6);
+        }
+
+        .model-option {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            border: 2px solid var(--sand-light);
+            background: var(--paper);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: left;
+            width: 100%;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .model-option:hover {
+            border-color: var(--amber);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .model-option:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow-xs);
+        }
+
+        .model-option.selected {
+            border-color: var(--amber);
+            background: #FDF5F0;
+            box-shadow: var(--shadow-sm), 0 0 0 3px var(--amber-glow);
+        }
+
+        .model-option-radio {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--sand-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .model-option.selected .model-option-radio {
+            border-color: var(--amber);
+            background: var(--amber);
+        }
+
+        .model-option.selected .model-option-radio::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        .model-option-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .model-option-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--ink);
+            font-family: var(--font-mono);
+            letter-spacing: -0.01em;
+        }
+
+        .model-option-desc {
+            font-size: 0.78rem;
+            color: var(--ink-muted);
+            margin-top: 2px;
+            line-height: 1.4;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: var(--space-3);
+        }
+
+        .btn-cancel {
+            flex: 1;
+            height: 44px;
+            background: transparent;
+            border: 1px solid var(--sand-dark);
+            color: var(--ink-muted);
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            transition: all 0.25s ease;
+        }
+
+        .btn-cancel:hover {
+            border-color: var(--ink-muted);
+            color: var(--ink);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-confirm {
+            flex: 2;
+            height: 44px;
+            background: var(--amber);
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            border: none;
+            box-shadow: var(--shadow-md);
+            transition: all 0.25s ease;
+        }
+
+        .btn-confirm:hover:not(:disabled) {
+            background: var(--amber-dark);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-1px);
+        }
+
+        .btn-confirm:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-confirm:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
         }
 
         /* =================================================================
@@ -2014,6 +2214,8 @@
             const [isStreaming, setIsStreaming] = useState(false);
             const [sidebarOpen, setSidebarOpen] = useState(true);
             const [userScrolledUp, setUserScrolledUp] = useState(false);
+            const [showModelModal, setShowModelModal] = useState(false);
+            const [selectedModel, setSelectedModel] = useState('');
 
             // Refs
             const messagesEndRef = useRef(null);
@@ -2099,9 +2301,7 @@
                 setTimeout(() => scrollToBottom(true), 50);
             }, [loadMessages, scrollToBottom]);
 
-            const createSession = useCallback(async () => {
-                const modelSelect = document.getElementById('model-select');
-                const model = modelSelect?.value;
+            const createSession = useCallback(async (model) => {
                 if (!model) {
                     toast('请先选择模型');
                     return;
@@ -2114,6 +2314,8 @@
                         return;
                     }
                     toast('会话已创建');
+                    setShowModelModal(false);
+                    setSelectedModel('');
                     await loadSessions();
                     await selectSession(res.data.session_id);
                 } catch (e) {
@@ -2254,19 +2456,7 @@
                             <div className="sidebar-brand">
                                 <span className="brand-star">✦</span> AIChat
                             </div>
-                            <div className="model-select-wrap">
-                                <select className="model-select" id="model-select" defaultValue="">
-                                    <option value="" disabled>选择模型...</option>
-                                    {models.map(m => (
-                                        <option key={m.model_name} value={m.model_name}
-                                                title={m.model_desc}>
-                                            {m.model_name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <div className="model-select-arrow">▼</div>
-                            </div>
-                            <button className="btn-new-session" onClick={createSession}>
+                            <button className="btn-new-session" onClick={() => setShowModelModal(true)}>
                                 + 新建会话
                             </button>
                         </div>
@@ -2275,7 +2465,7 @@
                             {sessions.length === 0 ? (
                                 <div className="session-list-empty">
                                     暂无会话<br/>
-                                    选择模型后创建新会话
+                                    点击上方按钮创建新会话
                                 </div>
                             ) : (
                                 sessions.map(s => (
@@ -2398,6 +2588,54 @@
                             </>
                         )}
                     </div>
+
+                    {/* ======== MODEL SELECTION MODAL ======== */}
+                    {showModelModal && (
+                        <div className="modal-overlay" onClick={() => { setShowModelModal(false); setSelectedModel(''); }}>
+                            <div className="modal-card" onClick={e => e.stopPropagation()}>
+                                <div className="modal-title">选择模型</div>
+                                <div className="modal-subtitle">为新会话选择一个大模型</div>
+
+                                <div className="model-option-list">
+                                    {models.length === 0 ? (
+                                        <div style={{ textAlign: 'center', color: 'var(--ink-muted)', padding: 'var(--space-6)' }}>
+                                            暂无可用模型
+                                        </div>
+                                    ) : (
+                                        models.map(m => (
+                                            <button
+                                                key={m.model_name}
+                                                className={`model-option ${selectedModel === m.model_name ? 'selected' : ''}`}
+                                                onClick={() => setSelectedModel(m.model_name)}
+                                            >
+                                                <div className="model-option-radio"></div>
+                                                <div className="model-option-info">
+                                                    <div className="model-option-name">{m.model_name}</div>
+                                                    <div className="model-option-desc">{m.model_desc || '暂无描述'}</div>
+                                                </div>
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+
+                                <div className="modal-actions">
+                                    <button
+                                        className="btn-cancel"
+                                        onClick={() => { setShowModelModal(false); setSelectedModel(''); }}
+                                    >
+                                        取消
+                                    </button>
+                                    <button
+                                        className="btn-confirm"
+                                        disabled={!selectedModel}
+                                        onClick={() => createSession(selectedModel)}
+                                    >
+                                        创建会话
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         }

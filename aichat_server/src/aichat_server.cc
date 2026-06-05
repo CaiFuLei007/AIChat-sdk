@@ -423,7 +423,6 @@ void AIChatServer::HandleSendMessageStream(const httplib::Request &request, http
 
         auto message_callback = [&](const std::string& data , bool finish)
         {
-            std::cout << data << '\n';
             if(!finish && data.empty())
                 return true;
             Json::Value data_json;
