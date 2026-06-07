@@ -52,10 +52,23 @@ if(NOT jsoncpp_FOUND)
     set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(jsoncpp)
     set(jsoncpp_target jsoncpp_static)
+    # FetchContent 下载的 jsoncpp 头文件路径是 <json/json.h>
+    # 但源码中使用的是 <jsoncpp/json/json.h>，需要添加兼容路径
+    set(JSONCPP_INCLUDE_DIRS ${jsoncpp_SOURCE_DIR}/include)
     message(STATUS "jsoncpp 已通过 FetchContent 下载，目标: jsoncpp_static")
 else()
-    set(jsoncpp_target jsoncpp)
-    message(STATUS "jsoncpp 已找到，目标: jsoncpp")
+    # 系统安装的 jsoncpp 目标名称可能是 jsoncpp_lib 或 jsoncpp_static
+    if(TARGET jsoncpp_lib)
+        set(jsoncpp_target jsoncpp_lib)
+    elseif(TARGET jsoncpp_static)
+        set(jsoncpp_target jsoncpp_static)
+    else()
+        set(jsoncpp_target jsoncpp)
+    endif()
+    # 系统安装的 jsoncpp 头文件路径是 <jsoncpp/json/json.h>
+    # 但源码中使用的是 <json/json.h>，需要添加兼容路径
+    get_target_property(JSONCPP_INCLUDE_DIRS ${jsoncpp_target} INTERFACE_INCLUDE_DIRECTORIES)
+    message(STATUS "jsoncpp 已找到，目标: ${jsoncpp_target}")
 endif()
 
 # ---------- spdlog (日志库) ----------
@@ -151,6 +164,7 @@ add_executable(aichat_server
 include_directories(
     ${CMAKE_SOURCE_DIR}/../sdk/include
     ${CMAKE_SOURCE_DIR}/src
+    ${JSONCPP_INCLUDE_DIRS}
 )
 
 target_compile_definitions(aichat_server PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
