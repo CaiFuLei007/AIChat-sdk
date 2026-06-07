@@ -34,8 +34,10 @@ if(NOT httplib_FOUND)
     )
     FetchContent_MakeAvailable(httplib)
     set(httplib_target httplib::httplib)
+    message(STATUS "httplib 已通过 FetchContent 下载，目标: httplib::httplib")
 else()
     set(httplib_target httplib::httplib)
+    message(STATUS "httplib 已找到，目标: httplib::httplib")
 endif()
 
 # ---------- jsoncpp (JSON 解析) ----------
@@ -50,8 +52,10 @@ if(NOT jsoncpp_FOUND)
     set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(jsoncpp)
     set(jsoncpp_target jsoncpp_static)
+    message(STATUS "jsoncpp 已通过 FetchContent 下载，目标: jsoncpp_static")
 else()
     set(jsoncpp_target jsoncpp)
+    message(STATUS "jsoncpp 已找到，目标: jsoncpp")
 endif()
 
 # ---------- spdlog (日志库) ----------
@@ -67,8 +71,10 @@ if(NOT spdlog_FOUND)
     set(SPDLOG_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(spdlog)
     set(spdlog_target spdlog::spdlog)
+    message(STATUS "spdlog 已通过 FetchContent 下载，目标: spdlog::spdlog")
 else()
     set(spdlog_target spdlog::spdlog)
+    message(STATUS "spdlog 已找到，目标: spdlog::spdlog")
 endif()
 
 # ---------- fmt (格式化库) ----------
@@ -83,8 +89,10 @@ if(NOT fmt_FOUND)
     set(FMT_TEST OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(fmt)
     set(fmt_target fmt::fmt)
+    message(STATUS "fmt 已通过 FetchContent 下载，目标: fmt::fmt")
 else()
     set(fmt_target fmt::fmt)
+    message(STATUS "fmt 已找到，目标: fmt::fmt")
 endif()
 
 # ---------- gflags (命令行参数解析) ----------
@@ -99,8 +107,10 @@ if(NOT gflags_FOUND)
     set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(gflags)
     set(gflags_target gflags)
+    message(STATUS "gflags 已通过 FetchContent 下载，目标: gflags")
 else()
     set(gflags_target gflags)
+    message(STATUS "gflags 已找到，目标: gflags")
 endif()
 
 # =================================================================
@@ -108,13 +118,17 @@ endif()
 # =================================================================
 
 find_package(OpenSSL REQUIRED)
+message(STATUS "OpenSSL 已找到，版本: ${OPENSSL_VERSION}")
+
 find_package(CURL REQUIRED)
+message(STATUS "CURL 已找到，版本: ${CURL_VERSION_STRING}")
 
 find_library(SQLITE3_LIB
     NAMES libsqlite3.so
     PATHS /usr/lib/x86_64-linux-gnu/
     REQUIRED
 )
+message(STATUS "SQLite3 已找到，库文件: ${SQLITE3_LIB}")
 
 # =================================================================
 #                         生成可执行程序
