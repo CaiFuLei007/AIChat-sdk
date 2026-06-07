@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 namespace ai_sdk
 {
