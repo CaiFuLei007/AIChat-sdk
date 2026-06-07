@@ -80,6 +80,10 @@ std::string DeepSeekProvider::SendMessage(const std::vector<Message>& messages)
     };
 
     httplib::Client client(config_.end_point);
+    if(config_.proxy.set_proxy)
+    {
+        client.set_proxy(config_.proxy.proxy_ip , config_.proxy.proxy_port);
+    }
     auto ret = client.Post(config_.path , headers , body, "application/json");
     if(!ret)
     {
@@ -223,6 +227,10 @@ std::string DeepSeekProvider::SendMessageStream(const std::vector<Message> &mess
     };
 
     httplib::Client client(config_.end_point);
+    if(config_.proxy.set_proxy)
+    {
+        client.set_proxy(config_.proxy.proxy_ip , config_.proxy.proxy_port);
+    }
     bool ret = client.send(request);
     if(!ret)
     {

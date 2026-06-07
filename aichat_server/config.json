@@ -14,5 +14,10 @@
         "deepseek_apikey": "",
         "chatgpt_apikey": "",
         "gemini_apikey": ""
+    },
+    "proxy": {
+        "set_proxy": false,
+        "proxy_ip": "",
+        "proxy_port": 
     }
 }

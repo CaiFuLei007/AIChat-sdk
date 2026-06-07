@@ -70,6 +70,13 @@ struct Config
     int max_token = 4096;
     double top_p = 1;
     std::string reasoning_effort = "high";  // deepseek
+
+    struct ProxyConfig {
+        bool set_proxy = false;
+        std::string proxy_ip;
+        uint16_t proxy_port = 0;
+    };
+    ProxyConfig proxy;
 };
 
 } // namespace ai_sdk

@@ -27,6 +27,11 @@ DEFINE_string(deepseek_apikey, "", "DeepSeek API Key");
 DEFINE_string(chatgpt_apikey, "", "ChatGPT API Key");
 DEFINE_string(gemini_apikey, "", "Gemini API Key");
 
+// 代理
+DEFINE_bool(set_proxy, false, "是否启用代理");
+DEFINE_string(proxy_ip, "", "代理 IP 地址");
+DEFINE_int32(proxy_port, 0, "代理端口号");
+
 // ==================== 配置文件加载 ====================
 
 static bool LoadConfigFile(const std::string &path, Json::Value &root)
@@ -98,10 +103,14 @@ int main(int argc, char *argv[])
         std::cout << "  --deepseek_apikey DeepSeek API Key" << std::endl;
         std::cout << "  --chatgpt_apikey  ChatGPT API Key" << std::endl;
         std::cout << "  --gemini_apikey   Gemini API Key" << std::endl;
+        std::cout << "  --set_proxy       是否启用代理 (默认: false)" << std::endl;
+        std::cout << "  --proxy_ip        代理 IP 地址" << std::endl;
+        std::cout << "  --proxy_port      代理端口号" << std::endl;
         std::cout << std::endl;
         std::cout << "示例:" << std::endl;
         std::cout << "  ./aichat_server --config config.json" << std::endl;
         std::cout << "  ./aichat_server --port 9090 --deepseek_apikey=sk-xxx" << std::endl;
+        std::cout << "  ./aichat_server --set_proxy --proxy_ip=127.0.0.1 --proxy_port=7890" << std::endl;
         return 0;
     }
 
@@ -149,6 +158,13 @@ int main(int argc, char *argv[])
     OverrideFromConfig(config_root, "models", "chatgpt_apikey", FLAGS_chatgpt_apikey);
     OverrideFromConfig(config_root, "models", "gemini_apikey", FLAGS_gemini_apikey);
 
+    // 代理配置
+    if (config_root.isMember("proxy") && config_root["proxy"].isMember("set_proxy")) {
+        FLAGS_set_proxy = config_root["proxy"]["set_proxy"].asBool();
+    }
+    OverrideFromConfig(config_root, "proxy", "proxy_ip", FLAGS_proxy_ip);
+    OverrideFromConfigInt(config_root, "proxy", "proxy_port", FLAGS_proxy_port);
+
     // ==================== 创建服务器 ====================
     AIChatServer server(db_name, smtp_config);
 
@@ -164,6 +180,9 @@ int main(int argc, char *argv[])
         cfg.model_info.model_name = "deepseek-v4-flash";
         cfg.model_info.model_decs = "DeepSeek AI 模型";
         cfg.apikey = FLAGS_deepseek_apikey;
+        cfg.proxy.set_proxy = FLAGS_set_proxy;
+        cfg.proxy.proxy_ip = FLAGS_proxy_ip;
+        cfg.proxy.proxy_port = FLAGS_proxy_port;
         configs.push_back(cfg);
         INFO("已注册模型: deepseek");
     }
@@ -177,6 +196,9 @@ int main(int argc, char *argv[])
         cfg.model_info.model_name = "gpt-4o";
         cfg.model_info.model_decs = "ChatGPT AI 模型";
         cfg.apikey = FLAGS_chatgpt_apikey;
+        cfg.proxy.set_proxy = FLAGS_set_proxy;
+        cfg.proxy.proxy_ip = FLAGS_proxy_ip;
+        cfg.proxy.proxy_port = FLAGS_proxy_port;
         configs.push_back(cfg);
         INFO("已注册模型: chatgpt");
     }
@@ -190,6 +212,9 @@ int main(int argc, char *argv[])
         cfg.model_info.model_name = "gemini-3.5-flash";
         cfg.model_info.model_decs = "Gemini AI 模型";
         cfg.apikey = FLAGS_gemini_apikey;
+        cfg.proxy.set_proxy = FLAGS_set_proxy;
+        cfg.proxy.proxy_ip = FLAGS_proxy_ip;
+        cfg.proxy.proxy_port = FLAGS_proxy_port;
         configs.push_back(cfg);
         INFO("已注册模型: gemini");
     }
