@@ -11,7 +11,7 @@
 #include <mutex>
 #include <filesystem>
 
-using namespace ai_sdk;
+using namespace aichat_sdk;
 
 class SessionManagerTest : public ::testing::Test
 {
@@ -21,7 +21,7 @@ protected:
 
     static void SetUpTestSuite()
     {
-        ai_sdk::Logger::initLogger("test", "stdout", spdlog::level::debug);
+        aichat_sdk::Logger::initLogger("test", "stdout", spdlog::level::debug);
     }
 
     void SetUp() override

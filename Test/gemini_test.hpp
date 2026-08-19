@@ -9,12 +9,12 @@
 class GeminiProviderTest : public ::testing::Test
 {
 protected:
-    ai_sdk::GeminiProvider provider_;
-    ai_sdk::Config config_;
+    aichat_sdk::GeminiProvider provider_;
+    aichat_sdk::Config config_;
 
     static void SetUpTestSuite()
     {
-        ai_sdk::Logger::initLogger("test", "stdout", spdlog::level::debug);
+        aichat_sdk::Logger::initLogger("test", "stdout", spdlog::level::debug);
     }
 
     void SetUp() override
@@ -32,8 +32,8 @@ protected:
 
 TEST_F(GeminiProviderTest, InitFailsWithEmptyApikey)
 {
-    ai_sdk::Config empty_config;
-    ai_sdk::GeminiProvider p;
+    aichat_sdk::Config empty_config;
+    aichat_sdk::GeminiProvider p;
     EXPECT_FALSE(p.Init(empty_config));
 }
 
@@ -54,7 +54,7 @@ TEST_F(GeminiProviderTest, InitFillsDefaults)
 
 TEST_F(GeminiProviderTest, NotAvailableBeforeInit)
 {
-    ai_sdk::GeminiProvider p;
+    aichat_sdk::GeminiProvider p;
     EXPECT_FALSE(p.IsAvaiable());
 }
 
@@ -63,7 +63,7 @@ TEST_F(GeminiProviderTest, SendMessageReturnsResponse)
     ASSERT_FALSE(config_.apikey.empty()) << "环境变量 Gemini_apikey 未设置";
     ASSERT_TRUE(provider_.Init(config_));
 
-    std::vector<ai_sdk::Message> messages = {
+    std::vector<aichat_sdk::Message> messages = {
         {"", "", "user", "Reply with one word: hello", 0}
     };
 
@@ -76,7 +76,7 @@ TEST_F(GeminiProviderTest, SendMessageStreamReturnsResponse)
     ASSERT_FALSE(config_.apikey.empty()) << "环境变量 Gemini_apikey 未设置";
     ASSERT_TRUE(provider_.Init(config_));
 
-    std::vector<ai_sdk::Message> messages = {
+    std::vector<aichat_sdk::Message> messages = {
         {"", "", "user", "Reply with one word: hello", 0}
     };
 

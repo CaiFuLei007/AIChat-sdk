@@ -5,7 +5,7 @@
     - 搭建一个 服务器来提供 AI对话服务
     - 成员 ：
             1) http::server 服务端
-            2) ai_sdk 
+            2) aichat_sdk 
             3) 两个hash 表存储用户验证码
 
 */
@@ -26,7 +26,7 @@ private:
     std::mutex mutex_;
 
     httplib::Server server_;
-    ai_sdk::AIChatSdk ai_sdk_;
+    aichat_sdk::AIChatSdk aichat_sdk_;
     std::unordered_map<std::string , std::string> verification_code_;
 
     std::unique_ptr<util::Curl> curl_;
@@ -59,7 +59,7 @@ public:
     AIChatServer(const std::string &db_name , const util::Config_info &config);
 
     void SetWebRoot(const std::string &mount_point, const std::string &web_dir);
-    void RegisterModels(const std::vector<ai_sdk::Config> &configs);
+    void RegisterModels(const std::vector<aichat_sdk::Config> &configs);
     void Run(const std::string &ip , uint16_t port);
 
 };

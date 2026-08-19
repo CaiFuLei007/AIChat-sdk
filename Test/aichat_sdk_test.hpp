@@ -13,7 +13,7 @@
 #include <cstdlib>
 #include <iostream>
 
-using namespace ai_sdk;
+using namespace aichat_sdk;
 
 // =================================================================
 //                         测试夹具
@@ -27,7 +27,7 @@ protected:
 
     static void SetUpTestSuite()
     {
-        ai_sdk::Logger::initLogger("test", "stdout", spdlog::level::debug);
+        aichat_sdk::Logger::initLogger("test", "stdout", spdlog::level::debug);
     }
 
     void SetUp() override

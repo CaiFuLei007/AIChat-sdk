@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     }
 
     // ==================== 初始化日志 ====================
-    ai_sdk::Logger::initLogger("aichat_server", "stdout", spdlog::level::debug);
+    aichat_sdk::Logger::initLogger("aichat_server", "stdout", spdlog::level::debug);
 
     // ==================== 加载配置文件 ====================
     Json::Value config_root;
@@ -169,13 +169,13 @@ int main(int argc, char *argv[])
     AIChatServer server(db_name, smtp_config);
 
     // ==================== 注册模型 ====================
-    std::vector<ai_sdk::Config> configs;
+    std::vector<aichat_sdk::Config> configs;
 
     // DeepSeek
     if (!FLAGS_deepseek_apikey.empty())
     {
-        ai_sdk::Config cfg;
-        cfg.model_type = ai_sdk::ModelType::DEEPSEEK;
+        aichat_sdk::Config cfg;
+        cfg.model_type = aichat_sdk::ModelType::DEEPSEEK;
         cfg.model = "deepseek-v4-flash";
         cfg.model_info.model_name = "deepseek-v4-flash";
         cfg.model_info.model_decs = "DeepSeek AI 模型";
@@ -190,8 +190,8 @@ int main(int argc, char *argv[])
     // ChatGPT
     if (!FLAGS_chatgpt_apikey.empty())
     {
-        ai_sdk::Config cfg;
-        cfg.model_type = ai_sdk::ModelType::CHATGPT;
+        aichat_sdk::Config cfg;
+        cfg.model_type = aichat_sdk::ModelType::CHATGPT;
         cfg.model = "gpt-4o";
         cfg.model_info.model_name = "gpt-4o";
         cfg.model_info.model_decs = "ChatGPT AI 模型";
@@ -206,8 +206,8 @@ int main(int argc, char *argv[])
     // Gemini
     if (!FLAGS_gemini_apikey.empty())
     {
-        ai_sdk::Config cfg;
-        cfg.model_type = ai_sdk::ModelType::GEMINI;
+        aichat_sdk::Config cfg;
+        cfg.model_type = aichat_sdk::ModelType::GEMINI;
         cfg.model = "gemini-3.5-flash";
         cfg.model_info.model_name = "gemini-3.5-flash";
         cfg.model_info.model_decs = "Gemini AI 模型";

@@ -6,7 +6,7 @@
 #include <httplib.h>
 #include <json/json.h>
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 
 bool DeepSeekProvider::Init(Config config)
@@ -242,4 +242,4 @@ std::string DeepSeekProvider::SendMessageStream(const std::vector<Message> &mess
     return full_message;
 }
 
-} // end ai_sdk
+} // end aichat_sdk

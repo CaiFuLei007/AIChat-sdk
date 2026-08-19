@@ -32,7 +32,7 @@
 #include <memory>
 #include <mutex>
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 
 class SessionManager
@@ -75,4 +75,4 @@ public:
         void RemoveTask(const std::string &id);
 };
 
-} // end ai_sdk
+} // end aichat_sdk

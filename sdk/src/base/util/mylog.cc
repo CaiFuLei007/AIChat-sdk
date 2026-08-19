@@ -7,7 +7,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/async.h>
 
-namespace ai_sdk{
+namespace aichat_sdk{
 
 std::shared_ptr<spdlog::logger> Logger::_logger = nullptr;
 std::mutex Logger::_mutex;
@@ -42,5 +42,5 @@ std::shared_ptr<spdlog::logger> Logger::getLogger(){
 }
 
 
-} // end ai_sdk
+} // end aichat_sdk
 

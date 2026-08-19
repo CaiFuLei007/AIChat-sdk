@@ -9,12 +9,12 @@
 class ChatGPTProviderTest : public ::testing::Test
 {
 protected:
-    ai_sdk::ChatGPTProvider provider_;
-    ai_sdk::Config config_;
+    aichat_sdk::ChatGPTProvider provider_;
+    aichat_sdk::Config config_;
 
     static void SetUpTestSuite()
     {
-        ai_sdk::Logger::initLogger("test", "stdout", spdlog::level::debug);
+        aichat_sdk::Logger::initLogger("test", "stdout", spdlog::level::debug);
     }
 
     void SetUp() override
@@ -29,8 +29,8 @@ protected:
 
 TEST_F(ChatGPTProviderTest, InitFailsWithEmptyApikey)
 {
-    ai_sdk::Config empty_config;
-    ai_sdk::ChatGPTProvider p;
+    aichat_sdk::Config empty_config;
+    aichat_sdk::ChatGPTProvider p;
     EXPECT_FALSE(p.Init(empty_config));
 }
 
@@ -49,7 +49,7 @@ TEST_F(ChatGPTProviderTest, InitFillsDefaults)
 
 TEST_F(ChatGPTProviderTest, NotAvailableBeforeInit)
 {
-    ai_sdk::ChatGPTProvider p;
+    aichat_sdk::ChatGPTProvider p;
     EXPECT_FALSE(p.IsAvaiable());
 }
 
@@ -57,7 +57,7 @@ TEST_F(ChatGPTProviderTest, SendMessageReturnsResponse)
 {
     ASSERT_TRUE(provider_.Init(config_));
 
-    std::vector<ai_sdk::Message> messages = {
+    std::vector<aichat_sdk::Message> messages = {
         {"", "", "user", "Reply with one word: hello", 0}
     };
 
@@ -69,7 +69,7 @@ TEST_F(ChatGPTProviderTest, SendMessageStreamReturnsResponse)
 {
     ASSERT_TRUE(provider_.Init(config_));
 
-    std::vector<ai_sdk::Message> messages = {
+    std::vector<aichat_sdk::Message> messages = {
         {"", "", "user", "Reply with one word: hello", 0}
     };
 

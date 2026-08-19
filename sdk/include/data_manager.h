@@ -20,7 +20,7 @@
 #include <string>
 #include <mutex>
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 
 class DataManager
@@ -66,4 +66,4 @@ public:
     std::vector<std::string> GetAllUserName();
 };
 
-} // namespace ai_sdk
+} // namespace aichat_sdk

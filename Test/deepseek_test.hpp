@@ -9,12 +9,12 @@
 class DeepSeekProviderTest : public ::testing::Test
 {
 protected:
-    ai_sdk::DeepSeekProvider provider_;
-    ai_sdk::Config config_;
+    aichat_sdk::DeepSeekProvider provider_;
+    aichat_sdk::Config config_;
 
     static void SetUpTestSuite()
     {
-        ai_sdk::Logger::initLogger("test", "stdout", spdlog::level::debug);
+        aichat_sdk::Logger::initLogger("test", "stdout", spdlog::level::debug);
     }
 
     void SetUp() override
@@ -30,8 +30,8 @@ protected:
 // Init 测试: apikey为空时返回false
 TEST_F(DeepSeekProviderTest, InitFailsWithEmptyApikey)
 {
-    ai_sdk::Config empty_config;
-    ai_sdk::DeepSeekProvider p;
+    aichat_sdk::Config empty_config;
+    aichat_sdk::DeepSeekProvider p;
     EXPECT_FALSE(p.Init(empty_config));
 }
 
@@ -55,7 +55,7 @@ TEST_F(DeepSeekProviderTest, SendMessageReturnsResponse)
 {
     ASSERT_TRUE(provider_.Init(config_));
 
-    std::vector<ai_sdk::Message> messages = {
+    std::vector<aichat_sdk::Message> messages = {
         {"", "", "user", "回复一个字:好", 0}
     };
 
@@ -68,7 +68,7 @@ TEST_F(DeepSeekProviderTest, SendMessageStreamReturnsResponse)
 {
     ASSERT_TRUE(provider_.Init(config_));
 
-    std::vector<ai_sdk::Message> messages = {
+    std::vector<aichat_sdk::Message> messages = {
         {"", "", "user", "回复一个字:好", 0}
     };
 
@@ -92,6 +92,6 @@ TEST_F(DeepSeekProviderTest, SendMessageStreamReturnsResponse)
 // 未初始化时IsAvaiable返回false
 TEST_F(DeepSeekProviderTest, NotAvailableBeforeInit)
 {
-    ai_sdk::DeepSeekProvider p;
+    aichat_sdk::DeepSeekProvider p;
     EXPECT_FALSE(p.IsAvaiable());
 }

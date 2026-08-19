@@ -5,7 +5,7 @@
 #include <fstream>
 
 AIChatServer::AIChatServer(const std::string &db_name, const util::Config_info &config)
-    : ai_sdk_(db_name),
+    : aichat_sdk_(db_name),
       curl_(std::make_unique<util::Curl>(config))
 {
     srand(time(nullptr));
@@ -54,7 +54,7 @@ bool AIChatServer::SendVerification(const std::string &email)
 
     verification_code_[email] = info_str;
 
-    ai_sdk_.AddTimerTask(email, 5, [this, email]() {
+    aichat_sdk_.AddTimerTask(email, 5, [this, email]() {
         std::unique_lock lock(mutex_);
         auto it = verification_code_.find(email);
         if(it == verification_code_.end())
@@ -144,7 +144,7 @@ void AIChatServer::HandleRegister(const httplib::Request &request, httplib::Resp
         hex_password.push_back(hex_chars[hash_password[i] & 0x0F]);
     }
 
-    std::string uid = ai_sdk_.CreateUser(email , hex_password);
+    std::string uid = aichat_sdk_.CreateUser(email , hex_password);
 
     Json::Value response_json;
     response_json["code"] = 0;
@@ -184,13 +184,13 @@ void AIChatServer::HandleLogin(const httplib::Request &request, httplib::Respons
         password.push_back(hex_chars[hash_password[i] & 0x0F]);
     }
 
-    if(!ai_sdk_.HasUser(email))
+    if(!aichat_sdk_.HasUser(email))
     {
         HandleError("用户未进行注册" , response);
         return ;
     }
 
-    auto info = ai_sdk_.GetUser(email , password);
+    auto info = aichat_sdk_.GetUser(email , password);
     if(!info)
     {
         HandleError("邮箱或密码错误" , response);
@@ -215,7 +215,7 @@ void AIChatServer::HandleGetUserSessions(const httplib::Request &request, httpli
 {
     std::string uid = request.path_params.at("uid");
     
-    auto all_session = ai_sdk_.GetUserAllSession(uid);
+    auto all_session = aichat_sdk_.GetUserAllSession(uid);
 
     Json::Value sessoins_body;
     for(auto& session : all_session)
@@ -245,7 +245,7 @@ void AIChatServer::HandleGetUserSessions(const httplib::Request &request, httpli
 
 void AIChatServer::HandleGetModels(const httplib::Request &request, httplib::Response &response)
 {
-    auto models = ai_sdk_.GetAllModels();
+    auto models = aichat_sdk_.GetAllModels();
     Json::Value model_body;
     for(auto& model : models)
     {
@@ -289,7 +289,7 @@ void AIChatServer::HandleCreateSession(const httplib::Request &request, httplib:
         return ;
     }
 
-    std::string session_id = ai_sdk_.CreateSession(uid , model_name);
+    std::string session_id = aichat_sdk_.CreateSession(uid , model_name);
 
     Json::Value response_json;
     response_json["code"] = 0;
@@ -306,7 +306,7 @@ void AIChatServer::HandleRemoveSession(const httplib::Request &request, httplib:
 {
     std::string ssid = request.path_params.at("ssid");
 
-    bool ret = ai_sdk_.RemoveSession(ssid);
+    bool ret = aichat_sdk_.RemoveSession(ssid);
     if(!ret)
     {
         HandleError("会话不存在", response);
@@ -325,7 +325,7 @@ void AIChatServer::HandleGetSessionAllMessage(const httplib::Request &request, h
 {
     std::string ssid = request.path_params.at("ssid");
 
-    auto session = ai_sdk_.GetSession(ssid);
+    auto session = aichat_sdk_.GetSession(ssid);
     if(!session)
     {
         HandleError("会话不存在", response);
@@ -360,7 +360,7 @@ void AIChatServer::HandleSendMessage(const httplib::Request &request, httplib::R
 {
     std::string ssid = request.path_params.at("ssid");
 
-    auto session = ai_sdk_.GetSession(ssid);
+    auto session = aichat_sdk_.GetSession(ssid);
     if(!session)
     {
         HandleError("会话不存在", response);
@@ -380,7 +380,7 @@ void AIChatServer::HandleSendMessage(const httplib::Request &request, httplib::R
         return;
     }
     
-    auto ret = ai_sdk_.SendMessage(ssid , content);
+    auto ret = aichat_sdk_.SendMessage(ssid , content);
     if(ret.empty())
     {
         HandleError("模型未返回消息", response);
@@ -400,7 +400,7 @@ void AIChatServer::HandleSendMessageStream(const httplib::Request &request, http
 {
     std::string ssid = request.path_params.at("ssid");
 
-    auto session = ai_sdk_.GetSession(ssid);
+    auto session = aichat_sdk_.GetSession(ssid);
     if(!session)
     {
         HandleError("会话不存在", response);
@@ -444,7 +444,7 @@ void AIChatServer::HandleSendMessageStream(const httplib::Request &request, http
         };
 
         message_callback("" , false);
-        ai_sdk_.SendMessageStream(ssid , content , message_callback);
+        aichat_sdk_.SendMessageStream(ssid , content , message_callback);
 
         return false;
     });
@@ -502,11 +502,11 @@ void AIChatServer::SetRouter()
     return ;
 }
 
-void AIChatServer::RegisterModels(const std::vector<ai_sdk::Config>& configs)
+void AIChatServer::RegisterModels(const std::vector<aichat_sdk::Config>& configs)
 {
     for(auto& config : configs)
     {
-        ai_sdk_.RegisterModel(config);
+        aichat_sdk_.RegisterModel(config);
     }
 }
 

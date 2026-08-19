@@ -2,7 +2,7 @@
 #include "llmmanager.h"
 #include "base/util/mylog.h"
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 
 bool LLManager::RegisterProvider(const std::string &model , std::unique_ptr<Provider> provider)
@@ -85,4 +85,4 @@ std::vector<ModelInfo> LLManager::GetAllModel()
     return models;
 }
 
-}   // end ai_sdk
+}   // end aichat_sdk

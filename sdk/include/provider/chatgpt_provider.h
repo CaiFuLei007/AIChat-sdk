@@ -15,7 +15,7 @@
 #include "provider/provider.h"
 
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 class ChatGPTProvider : public Provider
 {
@@ -33,4 +33,4 @@ public:
 };
 
 
-}; // end ai_sdk
+}; // end aichat_sdk

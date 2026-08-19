@@ -4,7 +4,7 @@
 #include <string>
 #include <random>
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 
 
@@ -365,4 +365,4 @@ void SessionManager::RemoveTask(const std::string &id)
     timer_wheel_->CancelTask(id);
 }
 
-}; // end ai_sdk
+}; // end aichat_sdk

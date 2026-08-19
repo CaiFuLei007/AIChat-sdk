@@ -23,7 +23,7 @@
 #include "session_manager.h"
 #include "base/common.h"
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 
 class AIChatSdk
@@ -61,4 +61,4 @@ public:
 };
 
 
-} // end ai_sdk
+} // end aichat_sdk

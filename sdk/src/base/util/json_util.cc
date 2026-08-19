@@ -1,7 +1,7 @@
 
 #include "base/util/json_util.h"
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 
 void JsonUtil::unserialize(const std::string& json ,  ::Json::Value& value)
@@ -25,4 +25,4 @@ void JsonUtil::serialize(const ::Json::Value& json , std::string& json_str)
 }
 
 
-}; // end ai_sdk
+}; // end aichat_sdk

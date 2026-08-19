@@ -2,7 +2,7 @@
 #include "data_manager.h"
 #include "base/util/mylog.h"
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 
 DataManager::DataManager(const std::string &db_name)
@@ -498,4 +498,4 @@ bool DataManager::RemoveSessionAllMessage(const std::string &ssid)
     return RemoveSessionAllMessageUnlock(ssid);
 }
 
-}// end ai_sdk
+}// end aichat_sdk

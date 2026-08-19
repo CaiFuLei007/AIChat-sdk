@@ -10,7 +10,7 @@
 #include <vector>
 #include <cstdint>
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 
 struct UserInfo
@@ -80,4 +80,4 @@ struct Config
     ProxyConfig proxy;
 };
 
-} // namespace ai_sdk
+} // namespace aichat_sdk

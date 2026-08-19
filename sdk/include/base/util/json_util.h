@@ -1,7 +1,7 @@
 
 #include <json/json.h>
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 
 class JsonUtil
@@ -13,4 +13,4 @@ public:
 
 
 
-}; // end ai_sdk
+}; // end aichat_sdk

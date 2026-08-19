@@ -5,7 +5,7 @@
 #include "provider/chatgpt_provider.h"
 #include "provider/deepseek_provider.h"
 
-namespace ai_sdk
+namespace aichat_sdk
 {
    
 bool AIChatSdk::RegisterModel(const Config &config)
@@ -140,4 +140,4 @@ std::shared_ptr<Session> AIChatSdk::GetSession(const std::string & ssid)
 }
 
 
-} // end ai_sdk
+} // end aichat_sdk

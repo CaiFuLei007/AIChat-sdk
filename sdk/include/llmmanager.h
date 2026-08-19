@@ -19,7 +19,7 @@
 #include <unordered_map>
 #include <memory>
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 
 class LLManager
@@ -43,4 +43,4 @@ public:
 };
 
 
-} // end ai_sdk
+} // end aichat_sdk

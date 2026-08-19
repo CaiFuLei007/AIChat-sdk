@@ -5,10 +5,10 @@
 #include "llmmanager.h"
 #include "base/util/mylog.h"
 
-class MockProvider : public ai_sdk::Provider
+class MockProvider : public aichat_sdk::Provider
 {
 public:
-    bool Init(ai_sdk::Config config) override
+    bool Init(aichat_sdk::Config config) override
     {
         if (config.apikey.empty()) return false;
         config_ = std::move(config);
@@ -16,13 +16,13 @@ public:
         return true;
     }
 
-    std::string SendMessage(const std::vector<ai_sdk::Message>& messages) override
+    std::string SendMessage(const std::vector<aichat_sdk::Message>& messages) override
     {
         if (messages.empty()) return "";
         return "mock_reply:" + messages.back().content;
     }
 
-    std::string SendMessageStream(const std::vector<ai_sdk::Message>& messages, MessageCallback cb) override
+    std::string SendMessageStream(const std::vector<aichat_sdk::Message>& messages, MessageCallback cb) override
     {
         if (messages.empty()) return "";
         std::string full = "stream:" + messages.back().content;
@@ -35,16 +35,16 @@ public:
 class LLManagerTest : public ::testing::Test
 {
 protected:
-    ai_sdk::LLManager manager_;
+    aichat_sdk::LLManager manager_;
 
     static void SetUpTestSuite()
     {
-        ai_sdk::Logger::initLogger("test", "stdout", spdlog::level::debug);
+        aichat_sdk::Logger::initLogger("test", "stdout", spdlog::level::debug);
     }
 
-    ai_sdk::Config MakeConfig(const std::string& name)
+    aichat_sdk::Config MakeConfig(const std::string& name)
     {
-        ai_sdk::Config cfg;
+        aichat_sdk::Config cfg;
         cfg.apikey = "test-key";
         cfg.model_info.model_name = name;
         cfg.model_info.model_decs = name + " desc";
@@ -73,7 +73,7 @@ TEST_F(LLManagerTest, InitUnregisteredFails)
 TEST_F(LLManagerTest, InitWithEmptyApikeyFails)
 {
     manager_.RegisterProvider("mock", std::make_unique<MockProvider>());
-    ai_sdk::Config cfg;
+    aichat_sdk::Config cfg;
     EXPECT_FALSE(manager_.InitProvider("mock", cfg));
 }
 
@@ -82,14 +82,14 @@ TEST_F(LLManagerTest, SendMessageToRegisteredProvider)
     manager_.RegisterProvider("mock", std::make_unique<MockProvider>());
     manager_.InitProvider("mock", MakeConfig("mock"));
 
-    std::vector<ai_sdk::Message> msgs = {{"", "", "user", "hello", 0}};
+    std::vector<aichat_sdk::Message> msgs = {{"", "", "user", "hello", 0}};
     std::string reply = manager_.SendMessage("mock", msgs);
     EXPECT_EQ(reply, "mock_reply:hello");
 }
 
 TEST_F(LLManagerTest, SendMessageToUnregisteredReturnsEmpty)
 {
-    std::vector<ai_sdk::Message> msgs = {{"", "", "user", "hello", 0}};
+    std::vector<aichat_sdk::Message> msgs = {{"", "", "user", "hello", 0}};
     EXPECT_TRUE(manager_.SendMessage("unknown", msgs).empty());
 }
 
@@ -98,7 +98,7 @@ TEST_F(LLManagerTest, SendMessageStreamToRegisteredProvider)
     manager_.RegisterProvider("mock", std::make_unique<MockProvider>());
     manager_.InitProvider("mock", MakeConfig("mock"));
 
-    std::vector<ai_sdk::Message> msgs = {{"", "", "user", "hello", 0}};
+    std::vector<aichat_sdk::Message> msgs = {{"", "", "user", "hello", 0}};
     std::string streamed;
     bool got_finish = false;
 
@@ -115,7 +115,7 @@ TEST_F(LLManagerTest, SendMessageStreamToRegisteredProvider)
 
 TEST_F(LLManagerTest, SendMessageStreamToUnregisteredReturnsEmpty)
 {
-    std::vector<ai_sdk::Message> msgs = {{"", "", "user", "hello", 0}};
+    std::vector<aichat_sdk::Message> msgs = {{"", "", "user", "hello", 0}};
     std::string result = manager_.SendMessageStream("unknown", msgs, [](const std::string&, bool){});
     EXPECT_TRUE(result.empty());
 }

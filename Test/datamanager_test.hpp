@@ -12,11 +12,11 @@ class DataManagerTest : public ::testing::Test
 {
 protected:
     std::string test_db_path_;
-    ai_sdk::DataManager* manager_;
+    aichat_sdk::DataManager* manager_;
 
     static void SetUpTestSuite()
     {
-        ai_sdk::Logger::initLogger("test", "stdout", spdlog::level::debug);
+        aichat_sdk::Logger::initLogger("test", "stdout", spdlog::level::debug);
     }
 
     void SetUp() override
@@ -29,7 +29,7 @@ protected:
             std::filesystem::remove(test_db_path_);
         }
 
-        manager_ = new ai_sdk::DataManager(test_db_path_);
+        manager_ = new aichat_sdk::DataManager(test_db_path_);
         ASSERT_TRUE(manager_->Init()) << "数据库初始化失败";
     }
 
@@ -45,9 +45,9 @@ protected:
     }
 
     // 辅助函数：创建测试用户
-    ai_sdk::UserInfo CreateTestUser(const std::string& uid, const std::string& email)
+    aichat_sdk::UserInfo CreateTestUser(const std::string& uid, const std::string& email)
     {
-        ai_sdk::UserInfo user;
+        aichat_sdk::UserInfo user;
         user.uid = uid;
         user.email = email;
         user.password = "test_password_" + uid;
@@ -56,9 +56,9 @@ protected:
     }
 
     // 辅助函数：创建测试会话
-    ai_sdk::Session CreateTestSession(const std::string& uid, const std::string& ssid, const std::string& model)
+    aichat_sdk::Session CreateTestSession(const std::string& uid, const std::string& ssid, const std::string& model)
     {
-        ai_sdk::Session session;
+        aichat_sdk::Session session;
         session.uid = uid;
         session.session_id = ssid;
         session.model_name = model;
@@ -68,9 +68,9 @@ protected:
     }
 
     // 辅助函数：创建测试消息
-    ai_sdk::Message CreateTestMessage(const std::string& ssid, const std::string& mid, const std::string& role, const std::string& content)
+    aichat_sdk::Message CreateTestMessage(const std::string& ssid, const std::string& mid, const std::string& role, const std::string& content)
     {
-        ai_sdk::Message message;
+        aichat_sdk::Message message;
         message.ssid = ssid;
         message.mid = mid;
         message.role = role;

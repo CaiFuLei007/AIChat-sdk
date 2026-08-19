@@ -10,7 +10,7 @@
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
 
-namespace ai_sdk{
+namespace aichat_sdk{
 
 
 class Logger{
@@ -27,12 +27,12 @@ class Logger{
 };
 
 
-#define TRACE(format, ...) ai_sdk::Logger::getLogger()->trace("[{:>10s}:{:<4d}]" format, __FILE__, __LINE__, ##__VA_ARGS__)
-#define DBG(format, ...) ai_sdk::Logger::getLogger()->debug("[{:>10s}:{:<4d}]" format, __FILE__, __LINE__, ##__VA_ARGS__)
-#define INFO(format, ...) ai_sdk::Logger::getLogger()->info("[{:>10s}:{:<4d}]" format, __FILE__, __LINE__, ##__VA_ARGS__)
-#define WARN(format, ...) ai_sdk::Logger::getLogger()->warn("[{:>10s}:{:<4d}]" format, __FILE__, __LINE__, ##__VA_ARGS__)
-#define ERR(format, ...) ai_sdk::Logger::getLogger()->error("[{:>10s}:{:<4d}]" format, __FILE__, __LINE__, ##__VA_ARGS__)
-#define CRIT(format, ...) ai_sdk::Logger::getLogger()->critical("[{:>10s}:{:<4d}]" format, __FILE__, __LINE__, ##__VA_ARGS__)
+#define TRACE(format, ...) aichat_sdk::Logger::getLogger()->trace("[{:>10s}:{:<4d}]" format, __FILE__, __LINE__, ##__VA_ARGS__)
+#define DBG(format, ...) aichat_sdk::Logger::getLogger()->debug("[{:>10s}:{:<4d}]" format, __FILE__, __LINE__, ##__VA_ARGS__)
+#define INFO(format, ...) aichat_sdk::Logger::getLogger()->info("[{:>10s}:{:<4d}]" format, __FILE__, __LINE__, ##__VA_ARGS__)
+#define WARN(format, ...) aichat_sdk::Logger::getLogger()->warn("[{:>10s}:{:<4d}]" format, __FILE__, __LINE__, ##__VA_ARGS__)
+#define ERR(format, ...) aichat_sdk::Logger::getLogger()->error("[{:>10s}:{:<4d}]" format, __FILE__, __LINE__, ##__VA_ARGS__)
+#define CRIT(format, ...) aichat_sdk::Logger::getLogger()->critical("[{:>10s}:{:<4d}]" format, __FILE__, __LINE__, ##__VA_ARGS__)
 
 
-} // end ai_sdk
+} // end aichat_sdk

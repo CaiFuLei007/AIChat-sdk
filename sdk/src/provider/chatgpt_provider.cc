@@ -6,7 +6,7 @@
 #include <httplib.h>
 #include <json/json.h>
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 
 bool ChatGPTProvider::Init(Config config)
@@ -262,4 +262,4 @@ std::string ChatGPTProvider::SendMessageStream(const std::vector<Message> &messa
     return full_message;
 }
 
-} // end ai_sdk
+} // end aichat_sdk

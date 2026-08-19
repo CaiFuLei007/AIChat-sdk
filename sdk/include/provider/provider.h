@@ -17,7 +17,7 @@
 #include <functional>
 
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 
 class Provider
@@ -51,4 +51,4 @@ public:
 };
 
 
-} // end ai_sdk
+} // end aichat_sdk

@@ -6,7 +6,7 @@
 #include <httplib.h>
 #include <json/json.h>
 
-namespace ai_sdk
+namespace aichat_sdk
 {
 
 bool GeminiProvider::Init(Config config)
@@ -282,4 +282,4 @@ std::string GeminiProvider::SendMessageStream(const std::vector<Message> &messag
     return full_message;
 }
 
-} // end ai_sdk
+} // end aichat_sdk
