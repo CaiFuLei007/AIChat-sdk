@@ -158,7 +158,7 @@ add_library(aichat_sdk SHARED ${SDK_SRC})
 target_include_directories(aichat_sdk
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/sdk/include>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/aichat_sdk>
     PRIVATE
         ${JSONCPP_INCLUDE_DIRS}
 )
@@ -187,24 +187,41 @@ set_target_properties(aichat_sdk PROPERTIES
 
 # =================================================================
 #                         安装
-#   1) 安装头文件 (sdk/include -> ${CMAKE_INSTALL_INCLUDEDIR})
-#   2) 安装动态库 (libaichat_sdk.so -> ${CMAKE_INSTALL_LIBDIR})
+#   1) 安装头文件 (sdk/include -> ${CMAKE_INSTALL_INCLUDEDIR}/aichat_sdk)
+#   2) 安装动态库 (libaichat_sdk.so -> ${CMAKE_INSTALL_LIBDIR}/aichat_sdk)
+#   说明: 仅安装 SDK 的头文件和动态库, 不安装可执行程序;
+#         aichat_server 与 Test 目录各自独立构建, 不参与安装。
 # =================================================================
 
-# 安装动态库到系统库搜索路径 (默认 /usr/local/lib)
+# 安装动态库到独立的 aichat_sdk 子目录 (默认 /usr/local/lib/aichat_sdk)
 install(TARGETS aichat_sdk
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/aichat_sdk
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/aichat_sdk
 )
 
-# 安装头文件到系统头文件搜索路径 (默认 /usr/local/include)
+# 安装头文件到独立的 aichat_sdk 子目录 (默认 /usr/local/include/aichat_sdk)
 # 保留 sdk/include 下的目录结构 (aichat_sdk.h / base/ / provider/ ...)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/sdk/include/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/aichat_sdk
     FILES_MATCHING
         PATTERN "*.h"
         PATTERN "*.hpp"
+)
+
+# =================================================================
+#                         卸载目标
+#   用法 : cmake --build <build_dir> --target uninstall
+#   原理 : 读取 install_manifest.txt 中记录的已安装文件并删除,
+#          并清理空的 aichat_sdk 子目录。
+# =================================================================
+add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND}
+            -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
+            -DCMAKE_INSTALL_INCLUDEDIR=${CMAKE_INSTALL_INCLUDEDIR}
+            -P ${CMAKE_SOURCE_DIR}/cmake/uninstall.cmake
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "卸载 aichat_sdk (根据 install_manifest.txt 删除已安装文件)"
 )
 
 # =================================================================
