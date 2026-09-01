@@ -134,12 +134,8 @@ message(STATUS "OpenSSL 已找到，版本: ${OPENSSL_VERSION}")
 find_package(CURL REQUIRED)
 message(STATUS "CURL 已找到，版本: ${CURL_VERSION_STRING}")
 
-find_library(SQLITE3_LIB
-    NAMES libsqlite3.so sqlite3
-    PATHS /usr/lib/x86_64-linux-gnu/ /usr/lib/ /usr/local/lib/
-    REQUIRED
-)
-message(STATUS "SQLite3 已找到，库文件: ${SQLITE3_LIB}")
+find_package(SQLite3 REQUIRED)
+message(STATUS "SQLite3 已找到，版本: ${SQLite3_VERSION}")
 
 # =================================================================
 #                         生成动态库
@@ -163,16 +159,21 @@ target_include_directories(aichat_sdk
         ${JSONCPP_INCLUDE_DIRS}
 )
 
-# 链接依赖
+# 链接依赖 :
+#   PUBLIC  : SQLite3 公共头文件 data_manager.h 包含 <sqlite3.h>, 使用方需要传递
+#             头文件搜索路径与链接目标, 避免使用方出现 sqlite3 符号未定义
+#   PRIVATE : httplib/jsoncpp/spdlog/fmt/OpenSSL/CURL 仅实现内部使用, 公共头文件
+#             不暴露其类型, 链接进动态库后无需向使用方传递
 target_link_libraries(aichat_sdk
     PUBLIC
+        SQLite::SQLite3
+    PRIVATE
         ${httplib_target}
         ${jsoncpp_target}
         ${spdlog_target}
         ${fmt_target}
         OpenSSL::SSL
         OpenSSL::Crypto
-        ${SQLITE3_LIB}
         CURL::libcurl
 )
 
@@ -194,7 +195,9 @@ set_target_properties(aichat_sdk PROPERTIES
 # =================================================================
 
 # 安装动态库到独立的 aichat_sdk 子目录 (默认 /usr/local/lib/aichat_sdk)
+# EXPORT : 将 aichat_sdk 目标记入 aichat_sdkTargets 导出集合, 供 find_package 使用
 install(TARGETS aichat_sdk
+    EXPORT aichat_sdkTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/aichat_sdk
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/aichat_sdk
 )
@@ -206,6 +209,43 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/sdk/include/
     FILES_MATCHING
         PATTERN "*.h"
         PATTERN "*.hpp"
+)
+
+# =================================================================
+#                    包配置导出 (find_package(aichat_sdk))
+#   生成 aichat_sdkConfig.cmake / aichat_sdkConfigVersion.cmake 与
+#   aichat_sdkTargets.cmake, 使用方 find_package(aichat_sdk) 后链接
+#   aichat_sdk::aichat_sdk 即可自动获得头文件搜索路径与 SQLite3 传递依赖
+# =================================================================
+
+include(CMakePackageConfigHelpers)
+
+# 生成包配置文件(填充版本与安装路径占位符)
+configure_package_config_file(
+    ${CMAKE_SOURCE_DIR}/cmake/aichat_sdkConfig.cmake.in
+    ${CMAKE_BINARY_DIR}/cmake/aichat_sdkConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/aichat_sdk
+)
+
+# 生成版本兼容文件(主版本号相同即兼容)
+write_basic_package_version_file(
+    ${CMAKE_BINARY_DIR}/cmake/aichat_sdkConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+# 导出目标文件(记录动态库的安装位置与 INTERFACE 属性)
+install(EXPORT aichat_sdkTargets
+    FILE aichat_sdkTargets.cmake
+    NAMESPACE aichat_sdk::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/aichat_sdk
+)
+
+# 安装包配置与版本文件
+install(FILES
+    ${CMAKE_BINARY_DIR}/cmake/aichat_sdkConfig.cmake
+    ${CMAKE_BINARY_DIR}/cmake/aichat_sdkConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/aichat_sdk
 )
 
 # =================================================================

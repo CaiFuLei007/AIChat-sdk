@@ -1,0 +1,12 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# 公共头文件 data_manager.h 包含 <sqlite3.h>, 使用方需要 SQLite3 的
+# 头文件搜索路径与链接目标(导出目标 aichat_sdk::aichat_sdk 引用 SQLite::SQLite3)
+find_dependency(SQLite3)
+
+# 导入动态库目标 aichat_sdk::aichat_sdk
+include("${CMAKE_CURRENT_LIST_DIR}/aichat_sdkTargets.cmake")
+
+check_required_components(aichat_sdk)
