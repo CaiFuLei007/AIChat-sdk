@@ -30,7 +30,8 @@
                 5) 处理所有定时任务
 */
 
-#include "base/poller.h"
+// 使用相对路径包含, 避免搜索路径顺序问题命中系统 include 根目录下的同名残留头文件
+#include "poller.h"
 
 #include <iostream>
 #include <functional>

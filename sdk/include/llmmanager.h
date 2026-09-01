@@ -18,6 +18,7 @@
 #include "provider/provider.h"
 #include <unordered_map>
 #include <memory>
+#include <shared_mutex>
 
 namespace aichat_sdk
 {
@@ -26,6 +27,8 @@ class LLManager
 {
     using MessageCallback = std::function<void(const std::string& data , bool finish)>;
 private:
+    // 读写锁保护三个容器 : 注册/初始化模型持独占锁, 发送消息/查询模型持共享锁支持并发
+    mutable std::shared_mutex mutex_;
     std::unordered_map<std::string , std::unique_ptr<Provider> > providers_;
     std::unordered_map<std::string , bool> provider_status_;
     std::unordered_map<std::string , ModelInfo > model_info_;

@@ -7,6 +7,9 @@ namespace aichat_sdk
 
 bool LLManager::RegisterProvider(const std::string &model , std::unique_ptr<Provider> provider)
 {
+    // 写锁 : 修改容器
+    std::unique_lock<std::shared_mutex> lock(mutex_);
+
     auto it = providers_.find(model);
     if(it != providers_.end())
     {
@@ -21,6 +24,9 @@ bool LLManager::RegisterProvider(const std::string &model , std::unique_ptr<Prov
 
 bool LLManager::InitProvider(const std::string& model , const Config &config)
 {
+    // 写锁 : 修改容器
+    std::unique_lock<std::shared_mutex> lock(mutex_);
+
     auto it = providers_.find(model);
     if(it == providers_.end())
     {
@@ -39,6 +45,9 @@ bool LLManager::InitProvider(const std::string& model , const Config &config)
 
 std::string LLManager::SendMessage(const std::string& model , const std::vector<Message> &messages)
 {
+    // 读锁 : 容器只读, 发送消息期间持锁保证 provider 生命周期安全, 多个消息可并发发送
+    std::shared_lock<std::shared_mutex> lock(mutex_);
+
     // 发送消息 , 全量返回
     auto it = providers_.find(model);
     if(it == providers_.end())
@@ -57,6 +66,9 @@ std::string LLManager::SendMessage(const std::string& model , const std::vector<
 
 std::string LLManager::SendMessageStream(const std::string& model , const std::vector<Message> &messages , MessageCallback message_cb)
 {
+    // 读锁 : 容器只读, 发送消息期间持锁保证 provider 生命周期安全, 多个消息可并发发送
+    std::shared_lock<std::shared_mutex> lock(mutex_);
+
     // 发送消息 , 流式返回
     auto it = providers_.find(model);
     if(it == providers_.end())
@@ -75,6 +87,9 @@ std::string LLManager::SendMessageStream(const std::string& model , const std::v
 
 std::vector<ModelInfo> LLManager::GetAllModel()
 {
+    // 读锁 : 容器只读
+    std::shared_lock<std::shared_mutex> lock(mutex_);
+
     size_t sz = model_info_.size();
     std::vector<ModelInfo> models(sz);
     int i = 0;

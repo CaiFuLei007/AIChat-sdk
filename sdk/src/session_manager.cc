@@ -251,9 +251,11 @@ std::shared_ptr<Session> SessionManager::GetSessionUnLock(const std::string& ssi
     {
         auto session = data_manager_->GetSession(ssid);
         auto session_ptr = std::make_shared<Session>(session);
+
+        // 先写回内存缓存再加载消息, 保证后续 GetSessionAllMessageUnLock 走内存分支, 避免同一会话被重复查库重建
+        it->second = session_ptr;
         session_ptr->messages = GetSessionAllMessageUnLock(ssid);
 
-        it->second = session_ptr;
         timer_wheel_->SetTask(session.session_id ,10 , [this , ssid](){         // 用户10分钟没有登录将其信息仅在磁盘上进行存储
             std::unique_lock<std::mutex> lock(mutex_);
 
@@ -343,9 +345,24 @@ std::vector<Message> SessionManager::GetSessionAllMessageUnLock(const std::strin
     }
     else
     {
-        it->second = GetSessionUnLock(ssid);
+        // 会话条目存在但指针已被定时器淘汰置空, 直接查库重建
+        // 注意 : 禁止递归调用 GetSessionUnLock, 两者在写回缓存前互相调用会无限递归导致栈溢出
+        auto session = data_manager_->GetSession(ssid);
+        auto session_ptr = std::make_shared<Session>(session);
         auto messages = data_manager_->GetMessages(ssid);
-        it->second->messages = messages;
+        session_ptr->messages = messages;
+        it->second = session_ptr;
+
+        timer_wheel_->SetTask(session.session_id ,10 , [this , ssid](){         // 用户10分钟没有登录将其信息仅在磁盘上进行存储
+            std::unique_lock<std::mutex> lock(mutex_);
+
+            auto it = session_table_.find(ssid);
+            if(it == session_table_.end())
+            {
+                return ;
+            }
+            it->second = nullptr;
+        });
         return messages;
     }
 }

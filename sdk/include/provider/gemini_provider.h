@@ -12,7 +12,8 @@
 
 */
 
-#include "provider/provider.h"
+// 使用相对路径包含, 避免搜索路径顺序问题命中系统 include 根目录下的同名残留头文件
+#include "provider.h"
 
 
 namespace aichat_sdk
