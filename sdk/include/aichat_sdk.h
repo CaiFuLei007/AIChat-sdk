@@ -50,6 +50,15 @@ public:
     std::string SendMessage(const std::string& ssid , const std::string& message);
     std::string SendMessageStream(const std::string& ssid , const std::string& message , MessageCallback callback);
 
+    /**
+     * @brief 向指定会话中追加一条 assistant 角色消息并持久化到数据库,
+     *        不触发模型调用, 用于将后端组装的完整结果(如可视化最终 JSON)写入会话历史
+     * @param ssid 会话 ID
+     * @param content assistant 消息内容
+     * @return 追加成功返回 true
+     */
+    bool CreateAssistantMessage(const std::string& ssid, const std::string& content);
+
     std::string CreateSession(const std::string& uid, const std::string &model_name);
     std::vector<Session> GetUserAllSession(const std::string &uid);
     std::shared_ptr<Session> GetSession(const std::string & ssid);

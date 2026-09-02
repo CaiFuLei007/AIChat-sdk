@@ -65,6 +65,13 @@ std::string AIChatSdk::CreateUser(const std::string& email , const std::string& 
 {
     return session_manager_->InsertNewUser(email , password);
 }
+
+bool AIChatSdk::CreateAssistantMessage(const std::string& ssid, const std::string& content)
+{
+    // 不触发模型调用, 仅追加一条 assistant 角色消息, 同步写入数据库与内存缓存
+    return session_manager_->CreateNewMessage(ssid, "assistant", content);
+}
+
 std::string AIChatSdk::SendMessage(const std::string& ssid , const std::string& message)
 {
     // 1. 先将本次信息加到 数据库中
