@@ -426,13 +426,50 @@ bool DataManager::RemoveMessage(const std::string& mid)
     }
 
     sqlite3_bind_text(stmt, 1, mid.c_str(), -1, NULL);
-    
+
     if (sqlite3_step(stmt) != SQLITE_DONE) {
         sqlite3_finalize(stmt);
         WARN("SQLITE3 STEP FAIL");
         return false;
     }
     sqlite3_finalize(stmt);
+
+    // mid 在数据库中不存在时视为删除失败
+    if (sqlite3_changes(sqlite_) == 0) {
+        WARN("REMOVE MESSAGE FAIL : MID NOT EXIST , MID={}" , mid);
+        return false;
+    }
+    return true;
+}
+
+bool DataManager::UpdateMessageContent(const std::string& mid, const std::string& content)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    static std::string update_message_content = "UPDATE MESSAGE SET CONTENT=? WHERE MID=?";
+
+    sqlite3_stmt *stmt;
+    int ret = sqlite3_prepare_v2(sqlite_, update_message_content.c_str(), -1, &stmt, NULL);
+    if (ret != SQLITE_OK) {
+        WARN("SQLITE3 PREPARE FAIL");
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, content.c_str(), -1, NULL);
+    sqlite3_bind_text(stmt, 2, mid.c_str(), -1, NULL);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        sqlite3_finalize(stmt);
+        WARN("SQLITE3 STEP FAIL");
+        return false;
+    }
+    sqlite3_finalize(stmt);
+
+    // mid 在数据库中不存在时视为更新失败
+    if (sqlite3_changes(sqlite_) == 0) {
+        WARN("UPDATE MESSAGE CONTENT FAIL : MID NOT EXIST , MID={}" , mid);
+        return false;
+    }
     return true;
 }
 std::vector<Message> DataManager::GetMessages(const std::string& ssid)

@@ -66,10 +66,22 @@ std::string AIChatSdk::CreateUser(const std::string& email , const std::string& 
     return session_manager_->InsertNewUser(email , password);
 }
 
-bool AIChatSdk::CreateAssistantMessage(const std::string& ssid, const std::string& content)
+bool AIChatSdk::CreateMessage(const std::string& ssid, const std::string& role, const std::string& content)
 {
-    // 不触发模型调用, 仅追加一条 assistant 角色消息, 同步写入数据库与内存缓存
-    return session_manager_->CreateNewMessage(ssid, "assistant", content);
+    // 通用消息插入, 不触发模型调用, 同步写入数据库与内存缓存
+    return session_manager_->CreateNewMessage(ssid, role, content);
+}
+
+bool AIChatSdk::RemoveMessage(const std::string& mid)
+{
+    // 按消息 ID 删除消息, 同步删除数据库与内存会话缓存中的该消息
+    return session_manager_->RemoveMessage(mid);
+}
+
+bool AIChatSdk::UpdateMessageContent(const std::string& mid, const std::string& content)
+{
+    // 按消息 ID 更新消息内容, 同步更新数据库与内存会话缓存
+    return session_manager_->UpdateMessageContent(mid, content);
 }
 
 std::string AIChatSdk::SendMessage(const std::string& ssid , const std::string& message)

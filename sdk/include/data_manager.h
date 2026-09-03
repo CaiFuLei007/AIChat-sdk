@@ -59,6 +59,7 @@ public:
 
     bool InsertMessage(const Message& message);
     bool RemoveMessage(const std::string& mid);
+    bool UpdateMessageContent(const std::string& mid, const std::string& content);
     std::vector<Message> GetMessages(const std::string& ssid);
     bool RemoveSessionAllMessage(const std::string &ssid);
 

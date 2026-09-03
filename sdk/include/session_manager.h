@@ -49,6 +49,7 @@ private:
         std::string Now();
         std::string GetssionId(const std::string& uid);
         std::string Getmid(const std::string& ssid);
+        std::string GetssidFromMid(const std::string& mid);
         std::string CreateUserId();
 
         std::shared_ptr<Session> GetSessionUnLock(const std::string& ssid);
@@ -65,6 +66,8 @@ public:
         std::vector<Session> GetUserAllSession(const std::string &uid);
         
         bool CreateNewMessage(const std::string &ssid , const std::string& role , const std::string& content);
+        bool RemoveMessage(const std::string& mid);
+        bool UpdateMessageContent(const std::string& mid, const std::string& content);
         std::vector<Message> GetSessionAllMessage(const std::string& ssid);
 
         bool HasUserName(const std::string& email);

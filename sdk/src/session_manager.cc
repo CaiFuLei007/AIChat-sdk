@@ -176,6 +176,13 @@ std::string SessionManager::Getmid(const std::string& ssid)
     return ssid + "_" + Now();
 }
 
+std::string SessionManager::GetssidFromMid(const std::string& mid)
+{
+    // mid 格式 : ssid_时间戳 , ssid 格式 : uid_时间戳 , uid 为不含下划线的 uuid
+    // 因此 mid 中最后一个 '_' 之前的部分即为 ssid
+    return mid.substr(0 , mid.rfind('_'));
+}
+
 std::string SessionManager::CreateSession(const std::string &uid , const std::string& model_name)
 {
     std::unique_lock<std::mutex> lock(mutex_);
@@ -317,6 +324,61 @@ bool SessionManager::CreateNewMessage(const std::string &ssid , const std::strin
         return false;
     }
     sessoin_ptr->messages.push_back(message);
+    return true;
+}
+
+bool SessionManager::RemoveMessage(const std::string& mid)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    // 1. 从数据库中删除消息 , mid 不存在时返回 false
+    if(!data_manager_->RemoveMessage(mid))
+    {
+        return false;
+    }
+
+    // 2. 根据 mid 解析 ssid , 同步删除内存会话缓存中的该消息
+    std::string ssid = GetssidFromMid(mid);
+    auto it = session_table_.find(ssid);
+    if(it != session_table_.end() && it->second)
+    {
+        auto& messages = it->second->messages;
+        for(auto msg_it = messages.begin(); msg_it != messages.end(); ++msg_it)
+        {
+            if(msg_it->mid == mid)
+            {
+                messages.erase(msg_it);
+                break;
+            }
+        }
+    }
+    return true;
+}
+
+bool SessionManager::UpdateMessageContent(const std::string& mid, const std::string& content)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    // 1. 更新数据库中的消息内容 , mid 不存在时返回 false
+    if(!data_manager_->UpdateMessageContent(mid , content))
+    {
+        return false;
+    }
+
+    // 2. 根据 mid 解析 ssid , 同步更新内存会话缓存中的该消息内容
+    std::string ssid = GetssidFromMid(mid);
+    auto it = session_table_.find(ssid);
+    if(it != session_table_.end() && it->second)
+    {
+        for(auto& message : it->second->messages)
+        {
+            if(message.mid == mid)
+            {
+                message.content = content;
+                break;
+            }
+        }
+    }
     return true;
 }
 

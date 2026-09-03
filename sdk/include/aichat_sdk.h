@@ -6,7 +6,7 @@
     - 成员 : 
             1) llmmanager 对大模型进行管理
             2) data_manager 对数据库进行管理
-    - 接口 : 
+    - 接口 :
             1) 添加模型
             2) 创建用户
             3) 获取用户信息
@@ -16,6 +16,7 @@
             7) 创建会话
             8) 获取用户所有会话列表
             9) 获取会话详细信息
+            10) 插入消息 , 删除消息 , 更新消息内容
 */
 
 
@@ -51,13 +52,28 @@ public:
     std::string SendMessageStream(const std::string& ssid , const std::string& message , MessageCallback callback);
 
     /**
-     * @brief 向指定会话中追加一条 assistant 角色消息并持久化到数据库,
-     *        不触发模型调用, 用于将后端组装的完整结果(如可视化最终 JSON)写入会话历史
-     * @param ssid 会话 ID
-     * @param content assistant 消息内容
-     * @return 追加成功返回 true
+     * @brief 通用消息插入接口, 向指定会话中插入一条指定角色的消息并持久化到数据库, 同步更新内存会话缓存, 不触发模型调用
+     * @paramssid 会话 ID
+     * @paramrole 消息角色 (如 user / assistant / system)
+     * @paramcontent 消息内容
+     * @return 插入成功返回 true
      */
-    bool CreateAssistantMessage(const std::string& ssid, const std::string& content);
+    bool CreateMessage(const std::string& ssid, const std::string& role, const std::string& content);
+
+    /**
+     * @brief 按消息 ID 删除指定消息, 同步更新内存会话缓存与 SQLite 数据库
+     * @parammid 消息 ID
+     * @return 删除成功返回 true , 消息不存在返回 false
+     */
+    bool RemoveMessage(const std::string& mid);
+
+    /**
+     * @brief 更新指定消息的内容, 同步更新内存会话缓存与 SQLite 数据库
+     * @parammid 消息 ID
+     * @paramcontent 新的消息内容
+     * @return 更新成功返回 true , 消息不存在返回 false
+     */
+    bool UpdateMessageContent(const std::string& mid, const std::string& content);
 
     std::string CreateSession(const std::string& uid, const std::string &model_name);
     std::vector<Session> GetUserAllSession(const std::string &uid);
